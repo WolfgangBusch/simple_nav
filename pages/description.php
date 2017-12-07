@@ -13,8 +13,8 @@ werden:</div>
 
 <div><br/><b>Minimalkonfiguration (Typ 1):</b></div>
 <ul style="padding-left:30px; margin-bottom:0px;">
-    <li>alle Kindartikel des Startartikels</li>
-    <li>alle Kindkategorien des Startartikels
+    <li>alle Kindartikel des Basisartikels</li>
+    <li>alle Kindkategorien des Basisartikels
         (&quot;Hauptkategorien&quot;)</li>
     <li>alle Kategorien im Pfad des aktuellen Artikels</li>
     <li>der aktuelle Artikel</li>
