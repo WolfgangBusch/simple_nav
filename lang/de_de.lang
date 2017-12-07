@@ -1,1 +1,7 @@
-fgdfdfv
+# addon:simple_nav
+simple_nav   = simple Navigation
+introduction = Einführung
+description  = Beschreibung
+handling     = Handhabung
+example      = Beispiel
+settings     = Konfiguration
