@@ -1,0 +1,17 @@
+package: simple_nav
+version: '1.0.0'
+author: 'Wolfgang Busch'
+supportpage: redaxo.org/forum/
+
+page:
+    title: 'translate:simple_nav'
+    perm: simple_nav[]
+    subpages:
+        introduction: { title: 'translate:introduction' }
+        description:  { title: 'translate:description' }
+        handling:     { title: 'translate:handling' }
+        example:      { title: 'translate:example'  }
+        settings:     { title: 'translate:settings' }
+
+requires:
+    redaxo: ^5.1.0
