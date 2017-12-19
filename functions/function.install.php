@@ -5,12 +5,18 @@
  * @package redaxo5
  * @version Dezember 2017
  */
+#
+# --- Definition der Konstanten
 define("NAVIGATION", $this->getPackageId()); // Package-Id
-define("AL", array("nav_typ",    "levelwidth"));
-define("BL", array("navwidth",   "lineheight", "fontsize",
-                   "brlwidth",   "bruwidth",   "borrad"));
-define("CL", array("navlinkcol", "navbor0",    "navcol0",  "navbor1",
-                   "navcol1",    "navbor2",    "navcol2",  "navtxt2"));
+function simple_nav_define_al() {
+   return array("nav_typ","levelwidth");
+   }
+function simple_nav_define_bl() {
+   return array("navwidth","lineheight","fontsize","brlwidth","bruwidth","borrad");
+   }
+function simple_nav_define_cl() {
+   return array("navlinkcol","navbor0","navcol0","navbor1","navcol1","navbor2","navcol2","navtxt2");
+   }
 #
 # --- Setzen der Default-Konfiguration der Stylesheet-Daten
 $defdata=simple_nav_default_data();
@@ -47,7 +53,7 @@ function simple_nav_write_css($data) {
    #      simple_nav_default_data()
    #      simple_nav_define_css($data,$zus)
    #
-   # --- fuer den allerersten Auzfruf bei der Installation
+   # --- fuer den allerersten Aufruf bei der Installation
    if(count($data)<2) $data=simple_nav_default_data();
    #
    # --- Stylesheet erzeugen
@@ -60,21 +66,26 @@ function simple_nav_write_css($data) {
    fclose($handle);
    }
 function simple_nav_default_data() {
-   #   Default-Werte der simple_nav-Stylesheet-Daten
+   #   Rueckgabe der Default-Werte der simple_nav-Stylesheet-Daten
    #   inkl. zugehoerige Array-Keys
+   #   benutzte functions:
+   #      simple_nav_define_al()
+   #      simple_nav_define_bl()
    #
+   $al=simple_nav_define_al();
+   $bl=simple_nav_define_bl();
    $defdata=array(
-      AL[0]=>2,     AL[1]=>10,
-      BL[0]=>150,   BL[1]=>"0.8", BL[2]=>"0.8",
-      BL[3]=>"0",   BL[4]=>"1",   BL[5]=>"0",
-      "rlink"=>153, "glink"=>51,  "blink"=>0,  "alink"=>"1",
-      "r0r"=>255,   "g0r"=>190,   "b0r"=>60,   "a0r"=>"1",
-      "r0bg"=>255,  "g0bg"=>255,  "b0bg"=>255, "a0bg"=>"0",
-      "r1r" =>255,  "g1r" =>190,  "b1r"=>60,   "a1r"=>"1",
-      "r1bg" =>255, "g1bg" =>190, "b1bg"=>60,  "a1bg"=>"0.3",
-      "r2r" =>255,  "g2r" =>190,  "b2r"=>60,   "a2r"=>"1",
-      "r2bg" =>204, "g2bg" =>102, "b2bg"=>51,  "a2bg"=>"1",
-      "r2t" =>255,  "g2t" =>255,  "b2t"=>255,  "a2t"=>"1");
+      $al[0]=>2,    $al[1]=>10,
+      $bl[0]=>150,  $bl[1]=>"0.8", $bl[2]=>"0.8",
+      $bl[3]=>"0",  $bl[4]=>"1",   $bl[5]=>"0",
+      "rlink"=>153, "glink"=>51,   "blink"=>0,  "alink"=>"1",
+      "r0r"=>255,   "g0r"=>190,    "b0r"=>60,   "a0r"=>"1",
+      "r0bg"=>255,  "g0bg"=>255,   "b0bg"=>255, "a0bg"=>"0",
+      "r1r" =>255,  "g1r" =>190,   "b1r"=>60,   "a1r"=>"1",
+      "r1bg" =>255, "g1bg" =>190,  "b1bg"=>60,  "a1bg"=>"0.3",
+      "r2r" =>255,  "g2r" =>190,   "b2r"=>60,   "a2r"=>"1",
+      "r2bg" =>204, "g2bg" =>102,  "b2bg"=>51,  "a2bg"=>"1",
+      "r2t" =>255,  "g2t" =>255,   "b2t"=>255,  "a2t"=>"1");
    return $defdata;
    }
 function simple_nav_define_css($data,$zus="") {
@@ -85,17 +96,21 @@ function simple_nav_define_css($data,$zus="") {
    #   $zus              Zusatzstring zu den simple_nav-Klassennamen fuer die
    #                     div-Container (nur fuer die Beispiele benoetigt)
    #   benutzte functions:
-   #      simple_nav_set_styles($data,CL[$i])
+   #      simple_nav_define_bl()
+   #      simple_nav_define_cl()
+   #      simple_nav_set_styles($data,$cl[$i])
    #
    # --- Setzen der fuer die Styles benutzte Klassenbezeichnungen:
-   for($i=0;$i<count(BL);$i=$i+1):
-      $styval=simple_nav_set_styles($data,BL[$i]);
-      $line="\$".BL[$i]."=\"$styval\";";
+   $bl=simple_nav_define_bl();
+   for($i=0;$i<count($bl);$i=$i+1):
+      $styval=simple_nav_set_styles($data,$bl[$i]);
+      $line="\$".$bl[$i]."=\"$styval\";";
       eval($line);
       endfor;
-   for($i=0;$i<count(CL);$i=$i+1):
-      $styval=simple_nav_set_styles($data,CL[$i]);
-      $line="\$".CL[$i]."=\"$styval\";";
+   $cl=simple_nav_define_cl();
+   for($i=0;$i<count($cl);$i=$i+1):
+      $styval=simple_nav_set_styles($data,$cl[$i]);
+      $line="\$".$cl[$i]."=\"$styval\";";
       eval($line);
       endfor;
    #
@@ -147,17 +162,23 @@ function simple_nav_set_styles($data,$mc) {
    #   $data             Array der Daten, aus denen die Stylesheet-
    #                     Klassenbezeichnungen zusammengestellt werden
    #   $mc               Name der Variablen
+   #   benutzte functions:
+   #      simple_nav_define_al()
+   #      simple_nav_define_bl()
+   #      simple_nav_define_cl()
    #
-   $ke=array_keys($data);
-   $offs=count(AL);
-   $cbl=count(BL);
+   $al=simple_nav_define_al();
+   $bl=simple_nav_define_bl();
+   $cl=simple_nav_define_cl();
+   $offs=count($al);
+   $cbl=count($bl);
    $offt=$cbl+$offs;
+   $ke=array_keys($data);
    for($i=0;$i<$cbl;$i=$i+1)
-      if($mc==BL[$i]) return $data[$ke[$i+$offs]];
-   for($i=0;$i<count(CL);$i=$i+1):
+      if($mc==$bl[$i]) return $data[$ke[$i+$offs]];
+   for($i=0;$i<count($cl);$i=$i+1):
       $k=4*$i+$offt;
-      if($mc==CL[$i])
-      if($mc==CL[$i])
+      if($mc==$cl[$i])
         return "rgba(".$data[$ke[$k]].",".$data[$ke[$k+1]].",".$data[$ke[$k+2]].",".
                $data[$ke[$k+3]].")";
       endfor;
@@ -188,9 +209,9 @@ function simple_nav_example() {
    # --- 2) konfigurierte Stylesheet-Daten (Navigationstyp wird uebernommen)
    $xmpdata=simple_nav_example_data();
    $xmpdata[$key[0]]=$navtyp;
-   $incr2=20;
-   $xmpdata[$$keys[1]]=$incr2;
-   $styles2=simple_nav_define_css($xmpdata,$incr2);
+   $zus="xmp";
+   $incr2=$xmpdata[$keys[1]];
+   $styles2=simple_nav_define_css($xmpdata,$zus);
    $xbgc="rgba($xmpdata[r0bg],$xmpdata[g0bg],$xmpdata[b0bg],$xmpdata[a0bg])";
    $xcol="rgba($xmpdata[rlink],$xmpdata[glink],$xmpdata[blink],$xmpdata[alink])";
    $xbor="rgba($xmpdata[r0r],$xmpdata[g0r],$xmpdata[b0r],$xmpdata[a0r])";
@@ -213,33 +234,38 @@ function simple_nav_example() {
       "                <tr><td>Typ 2: &nbsp; </td><td>mit &nbsp; </td><td>...onkelkategorien</td></tr>\n".
       "                <tr><td>Typ 3: &nbsp; </td><td>mit &nbsp; </td><td>...onkelkategorien und -artikeln</td></tr>\n".
       "            </table>\n".
-      "        <td style=\"padding:10px; white-space:nowrap; $col\">\n".
+      "        <td style=\"padding:10px; $col\">\n".
       "            <div align=\"center\"><b>... konfigurierten Daten/Styles</b></div><br/>\n".
       simple_nav_print_line($entries,$incr1,$incr1).
       "        </td>\n".
-      "        <td style=\"padding:10px; white-space:nowrap; $xcol\">\n".
+      "        <td style=\"padding:10px; $xcol\">\n".
       "            <div align=\"center\"><b>... modifizierten Daten/Styles</b></div><br/>\n".
-      simple_nav_print_line($entries,$incr2,$incr2).
+      simple_nav_print_line($entries,$zus,$incr2).
       "        </td></tr>\n".
       "</table>\n".
       "</div>\n";
    }
 function simple_nav_example_data() {
-   #   Beispiel-Werte der simple_nav-Stylesheet-Daten
+   #   Rueckgabe der Beispiel-Werte der simple_nav-Stylesheet-Daten
    #   inkl. zugehoerige Array-Keys
+   #   benutzte functions:
+   #      simple_nav_define_al()
+   #      simple_nav_define_bl()
    #
-   $b=array(36,95,127,1);  // blau
+   $b=array(72,120,160,1);  // blau
+   $al=simple_nav_define_al();
+   $bl=simple_nav_define_bl();
    $defdata=array(
-      AL[0]=>2,      AL[1]=>10,
-      BL[0]=>220,    BL[1]=>"1.5",  BL[2]=>"1.2",
-      BL[3]=>"1",    BL[4]=>"1",    BL[5]=>"0.5",
+      $al[0]=>2,     $al[1]=>20,
+      $bl[0]=>220,   $bl[1]=>"1.5", $bl[2]=>"1.2",
+      $bl[3]=>"1",   $bl[4]=>"1",   $bl[5]=>"0.5",
       "rlink"=>255,  "glink"=>255,  "blink"=>255,  "alink"=>"1",    // weiss
       "r0r" =>$b[0], "g0r" =>$b[1], "b0r" =>$b[2], "a0r" =>$b[3], // blau
       "r0bg"=>$b[0], "g0bg"=>$b[1], "b0bg"=>$b[2], "a0bg"=>$b[3], // blau
       "r1r" =>$b[0], "g1r" =>$b[1], "b1r" =>$b[2], "a1r" =>$b[3], // blau
       "r1bg"=>$b[0], "g1bg"=>$b[1], "b1bg"=>$b[2], "a1bg"=>$b[3], // blau
       "r2r" =>$b[0], "g2r" =>$b[1], "b2r" =>$b[2], "a2r" =>$b[3], // blau
-      "r2bg"=>153,   "g2bg"=>51,    "b2bg"=>0,     "a2bg"=>"1",     // rot
+      "r2bg"=>183,   "g2bg"=>81,    "b2bg"=>0,     "a2bg"=>"1",     // rot
       "r2t" =>255,   "g2t" =>255,   "b2t"=>255,    "a2t"=>"1");     // weiss
    return $defdata;
    }
