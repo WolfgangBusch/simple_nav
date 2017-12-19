@@ -6,7 +6,8 @@
  * @version Dezember 2017
  */
 function simple_nav_input($daten,$keys,$n,$sty,$width) {
-   return '<td '.$sty.'><input style="width:'.$width.'px;" type="text" name="'.$keys[$n].'" value="'.$daten[$keys[$n]].'" /></td>';
+   return '<td '.$sty.'><input style="width:'.$width.'px;" type="text" name="'.
+      $keys[$n].'" value="'.$daten[$keys[$n]].'" /></td>';
    }
 function simple_nav_select($val,$daten,$keys,$n,$sty,$width) {
    #   Select-Menue fuer einen Eingabewert
@@ -32,17 +33,38 @@ function simple_nav_good_contraste($col,$bgcol) {
      return TRUE;
      endif;
    }
+function simple_nav_col_contraste($col) {
+   #   Rueckgabe einer Kontrastfarbe als Hintergrund zu einer gegebenen Farbe.
+   #   Wenn weiss nicht genuegend Kontrast hat, wird eine Komplementaerfarbe berechnet.
+   #   $col              gegebene Farbe "rgba(r,g,b,Deckung)"
+   #   benutzte functions:
+   #      simple_nav_good_contraste($col,$bgcol)
+   #
+   $white="rgba(255,255,255,1)";
+   if(simple_nav_good_contraste($col,$white)) return $white;
+   $tcol=trim($col);
+   $e=substr($tcol,5,strlen($tcol)-6);
+   $arr=explode(",",$e);
+   return "rgba(".strval(255-$arr[0]).",".strval(255-$arr[1]).",".
+      strval(255-$arr[2]).",1)";
+   }
 function simple_nav_print_input($daten,$keys,$na,$txt,$erg,$narr,$stx,$sty,$width) {
    #   Input-Menue fuer einen Eingabewert
-   $off=count(AL)+count(BL);
+   $off=count(simple_nav_define_al())+count(simple_nav_define_bl());
    $ns=4*$na+$off;
    $nt=  $na+$off;
    #
    # --- Text-, Rand-, Hintergrundfarbe
+   $cl=simple_nav_define_cl();
    $nam=array('col','bor','bgcol');
    for($i=0;$i<=2;$i=$i+1):
-      $k=$narr[$i];
-      $val=simple_nav_set_styles($daten,CL[$k]);
+      if($i==2 and ($na==1 or $na==3 or $na==5)):
+        #  Hintergrundfarbe $val mit genuegend Kontrast zur Randfarbe
+        $val=simple_nav_col_contraste($col);
+        else:
+        $k=$narr[$i];
+        $val=simple_nav_set_styles($daten,$cl[$k]);
+        endif;
       $line='$'.$nam[$i].'="'.$val.'";';
       eval($line);
       endfor;
@@ -52,7 +74,8 @@ function simple_nav_print_input($daten,$keys,$na,$txt,$erg,$narr,$stx,$sty,$widt
     <tr><td '.$stx.'>'.$txt[$nt].'</td>';
    for($i=$ns;$i<=$ns+3;$i=$i+1)
       $str=$str.'
-        <td '.$sty.'><input style="width:'.$width.'px;" type="text" name="'.$keys[$i].'" value="'.$daten[$keys[$i]].'" /></td>';
+        <td '.$sty.'><input style="width:'.$width.'px;" type="text" name="'.$keys[$i].
+        '" value="'.$daten[$keys[$i]].'" /></td>';
    #
    if($na==0 or $na==1 or $na==3 or $na==5 or $na==7):
      # --- letzte Spalte (Linktext/Raender)
@@ -61,7 +84,7 @@ function simple_nav_print_input($daten,$keys,$na,$txt,$erg,$narr,$stx,$sty,$widt
         <td '.$stx.' align="right" width="'.$daten[$keys[2]].'">'.
            '<span style="width:'.$iwd.'px; '.
            'background-color:'.$bgcol.'; color:'.$col.';" />'.
-           '&nbsp;'.$erg[$nt].'&nbsp;</span></td></tr>';
+           '&nbsp;&nbsp;'.$erg[$nt].'&nbsp;&nbsp;</span></td></tr>';
      else:
      # --- letzte Spalte (Navigationszeile)
      #     ggf. Hinweis auf fehlenden Kontrast Hintergrundfarbe - Textfarbe
@@ -103,7 +126,7 @@ $txt=array(
    'Zeile des aktuellen Artikels: Hintergrundfarbe',
    'Zeile des aktuellen Artikels: Textfarbe (kein Link)');
 $t1='Linktext';
-$t2='&mdash;&mdash;&mdash;&mdash;';
+$t2='<b>&mdash;&mdash;&mdash;&mdash;</b>';
 $erg=array('','px','px','em','em','px','px','em',
    $t1,$t2,$t1,$t2,$t1,$t2,"Artikelname","Text");
 $stx='style="padding-left:20px; padding-right:5px; white-space:nowrap;"';
@@ -150,7 +173,7 @@ echo utf8_encode('
 <table>');
 #
 # --- Navigationstyp, Einrueckung, Groessen-Parameter
-$count=count(AL)+count(BL);
+$count=count(simple_nav_define_al())+count(simple_nav_define_bl());
 $string='
     <tr><td colspan="6"><b>allgemeine Parameter:</b></td></tr>';
 for($i=0;$i<$count;$i=$i+1):
@@ -186,7 +209,7 @@ echo utf8_encode('
 $narr=array(array(0,2, 2), array( 1,2,2), array( 0, 1, 2), array( 3,2, 2),
             array(0,3, 4), array( 5,2,2), array( 7, 5, 6), array( 7,2, 6));
 $string='';
-for($i=0;$i<count(CL);$i=$i+1)
+for($i=0;$i<count(simple_nav_define_cl());$i=$i+1)
    $string=$string.simple_nav_print_input($daten,$keys,$i,$txt,$erg,$narr[$i],$stx,$sty,$width);
 echo utf8_encode($string);
 #
