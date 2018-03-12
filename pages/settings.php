@@ -3,7 +3,7 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Dezember 2017
+ * @version Maerz 2018
  */
 function simple_nav_input($daten,$keys,$n,$sty,$width) {
    return '<td '.$sty.'><input style="width:'.$width.'px;" type="text" name="'.
@@ -165,6 +165,8 @@ if(!empty($sendit) or !empty($reset)):
   for($i=0;$i<count($keys);$i=$i+1)
      rex_config::set(NAVIGATION,$keys[$i],$daten[$keys[$i]]);
   simple_nav_write_css($daten);
+  echo rex_view::info(utf8_encode("Und nun noch das <u>AddOn re-installieren</u>, ".
+     "damit die Änderungen greifen!"));
   endif;
 #
 # --- Formularanfang
