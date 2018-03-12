@@ -3,7 +3,7 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Dezember 2017
+ * @version Maerz 2018
  */
 #
 # --- Definition der Konstanten
@@ -60,7 +60,7 @@ function simple_nav_write_css($data) {
    $buffer=simple_nav_define_css($data,"");
    #
    # --- Schreiben der Stylesheet-Datei
-   $file=rex_path::assets()."addons/simple_nav/simple_nav.css";
+   $file=rex_path::addon(NAVIGATION)."assets/".NAVIGATION.".css";
    $handle=fopen($file,"w");
    fwrite($handle,$buffer);
    fclose($handle);
@@ -123,7 +123,7 @@ function simple_nav_define_css($data,$zus="") {
    #
    # --- String der Stylesheet-Anweisungen erzeugen
    $buffer=
-'/*   s i m p n a v - N a v i g a t i o n   */
+'/*   s i m p l e _ n a v - N a v i g a t i o n   */
 div.'.$nav.' {
    padding:3px; width:'.$navwidth.'px; line-height:'.$lineheight.'em;
    border-bottom:solid '.$bruwidth.'px '.$navbor0.';
@@ -200,13 +200,12 @@ function simple_nav_example() {
    for($i=0;$i<count($keys);$i=$i+1) $data[$keys[$i]]=rex_config::get(NAVIGATION,$keys[$i]);
    $navtyp=$data[$keys[0]];
    $incr1=rex_config::get(NAVIGATION,$keys[1]);
-   $styles1=simple_nav_define_css($data,$incr1);
    $bgc="rgba($data[r0bg],$data[g0bg],$data[b0bg],$data[a0bg])";
    $col="rgba($data[rlink],$data[glink],$data[blink],$data[alink])";
    $bor="rgba($data[r0r],$data[g0r],$data[b0r],$data[a0r])";
-   $col="border:solid 1px $bor; background-color:$bgc; color:$col;";
+   $stycol="border:solid 1px $bor; background-color:$bgc; color:$col;";
    #
-   # --- 2) konfigurierte Stylesheet-Daten (Navigationstyp wird uebernommen)
+   # --- 2) Beispiel-Stylesheet-Daten (Navigationstyp wird uebernommen)
    $xmpdata=simple_nav_example_data();
    $xmpdata[$key[0]]=$navtyp;
    $zus="xmp";
@@ -215,14 +214,13 @@ function simple_nav_example() {
    $xbgc="rgba($xmpdata[r0bg],$xmpdata[g0bg],$xmpdata[b0bg],$xmpdata[a0bg])";
    $xcol="rgba($xmpdata[rlink],$xmpdata[glink],$xmpdata[blink],$xmpdata[alink])";
    $xbor="rgba($xmpdata[r0r],$xmpdata[g0r],$xmpdata[b0r],$xmpdata[a0r])";
-   $xcol="border:solid 1px $xbgc; background-color:$xbor; color:$xcol;";
+   $stxcol="border:solid 1px $xbgc; background-color:$xbor; color:$xcol;";
    #
    # --- Entries (Navigationszeilen)
    $entries=simple_nav_example_entries($navtyp);
    #
    # --- Darstellung beider Navigationen nebeneinander
-   return "<style>\n".$styles1."\n"."</style>\n".
-      "<style>\n".$styles2."\n"."</style>\n".
+   return "<style>\n".$styles2."\n"."</style>\n".
       "<div align=\"center\">".
       "<table>\n".
       "    <tr valign=\"top\">\n".
@@ -234,11 +232,11 @@ function simple_nav_example() {
       "                <tr><td>Typ 2: &nbsp; </td><td>mit &nbsp; </td><td>...onkelkategorien</td></tr>\n".
       "                <tr><td>Typ 3: &nbsp; </td><td>mit &nbsp; </td><td>...onkelkategorien und -artikeln</td></tr>\n".
       "            </table>\n".
-      "        <td style=\"padding:10px; $col\">\n".
+      "        <td style=\"padding:10px; $stycol\">\n".
       "            <div align=\"center\"><b>... konfigurierten Daten/Styles</b></div><br/>\n".
-      simple_nav_print_line($entries,$incr1,$incr1).
+      simple_nav_print_line($entries,"",$incr1).
       "        </td>\n".
-      "        <td style=\"padding:10px; $xcol\">\n".
+      "        <td style=\"padding:10px; $stxcol\">\n".
       "            <div align=\"center\"><b>... modifizierten Daten/Styles</b></div><br/>\n".
       simple_nav_print_line($entries,$zus,$incr2).
       "        </td></tr>\n".

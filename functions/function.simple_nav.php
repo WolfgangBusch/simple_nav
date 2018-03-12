@@ -3,7 +3,7 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Dezember 2017
+ * @version Maerz 2018
  */
 #
 # --- simple_nav-Klassennamen fuer die div-Container
