@@ -1,4 +1,12 @@
 # simple_nav
+<h4>Version 1.2.0</h4>
+<ul>
+    <li>Die Stylesheet-Datei liegt jetzt im AddOn-Unterverzeichnis 'assets'.
+        Dort hinein werden auch Konfigurationseinträge eingetragen, sodass
+        erst mit einem re-Install das Stylesheet wirksam wird.</li>
+    <li>Die Stylesheet-Datei wird jetzt auch auf der Beispiel-Seite
+        im Backend benutzt.</li>
+</ul>
 <h4>Version 1.1.0</h4>
 <ul>
     <li>Die Konfiguration der Navigationsparameter wurde so geändert,
