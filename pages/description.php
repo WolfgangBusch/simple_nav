@@ -3,19 +3,19 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Maerz 2018
+ * @version Juli 2018
  */
 #
 # --- Beschreibung
 $string='
-<div>Die Anzahl der Navigationszeilen kann in drei Stufen variiert
-werden:</div>
+<div>Die Anzahl der angezeigten Navigationszeilen kann in drei Stufen
+variiert werden:</div>
 
 <div><br/><b>Minimalkonfiguration (Typ 1):</b></div>
 <ul style="padding-left:30px; margin-bottom:0px;">
-    <li>alle Kindartikel des Basisartikels</li>
-    <li>alle Kindkategorien des Basisartikels
-        (&quot;Hauptkategorien&quot;)</li>
+    <li>alle Kindartikel des Basisartikels (= Startartikel der
+        Basiskategorie)</li>
+    <li>alle Kindkategorien des Basisartikels</li>
     <li>alle Kategorien im Pfad des aktuellen Artikels</li>
     <li>der aktuelle Artikel</li>
     <li>seine Geschwisterartikel und -kategorien
