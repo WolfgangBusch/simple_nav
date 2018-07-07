@@ -3,10 +3,10 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Maerz 2018
+ * @version Juli 2018
  */
-require_once __DIR__.'/functions/function.install.php';
-require_once __DIR__.'/functions/function.simple_nav.php';
+require_once __DIR__.'/lib/class.simple_nav.php';
+require_once __DIR__.'/lib/class.simple_nav_config.php';
 #
 # --- CSS-File auch im Backend einbinden
 $my_package=$this->getPackageId();

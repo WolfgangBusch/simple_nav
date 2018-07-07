@@ -1,4 +1,11 @@
 # simple_nav
+<h4>Version 1.3.0</h4>
+<ul>
+    <li>Das AddOn wurde grundlegend überabeitet und neu strukturiert.</li>
+    <li>Die Function zur Ausgabe einer Navigation enthält jetzt die
+        nötigen echo-Anweisungen selbst, sodass der entsprechende Aufruf
+        im Template geändert werden muss (vergl. Beschreibung).</li>
+</ul>
 <h4>Version 1.2.0</h4>
 <ul>
     <li>Die Stylesheet-Datei liegt jetzt im AddOn-Unterverzeichnis 'assets'.
