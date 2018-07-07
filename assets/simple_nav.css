@@ -1,15 +1,15 @@
 /*   s i m p l e _ n a v - N a v i g a t i o n   */
-div.simple_nav {
-   padding:3px; width:150px; line-height:0.8em;
-   border-bottom:solid 1px rgba(255,190,60,1);
-   border-top:   solid 0px rgba(255,190,60,1);
-   border-left:  solid 0px rgba(255,190,60,1);
-   border-right: solid 0px rgba(255,190,60,1);
-   border-radius:0em; }
 div.simple_nav1 {
    padding:3px; width:150px; line-height:0.8em;
    border-bottom:solid 1px rgba(255,190,60,1);
    border-top:   solid 1px rgba(255,190,60,1);
+   border-left:  solid 0px rgba(255,190,60,1);
+   border-right: solid 0px rgba(255,190,60,1);
+   border-radius:0em; }
+div.simple_nav {
+   padding:3px; width:150px; line-height:0.8em;
+   border-bottom:solid 1px rgba(255,190,60,1);
+   border-top:   solid 0px rgba(255,190,60,1);     /* kein oberer Rand */
    border-left:  solid 0px rgba(255,190,60,1);
    border-right: solid 0px rgba(255,190,60,1);
    border-radius:0em; }
