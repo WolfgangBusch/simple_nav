@@ -76,8 +76,8 @@ public static function config() {
       if(is_scalar($post)):
         if(empty($post) and $post!='0') $post=$confdat[$key];
         # --- Eingabedaten gemaess Beschraenkungen korrigieren
-        if($i==4 and $post>$confdat[$keys[3]]):
-          $korr=$confdat[$keys[3]];
+        if($i==4 and $post>$daten[$keys[3]]):
+          $korr=$daten[$keys[3]];
           $warn=$txt[$i].': &nbsp; <code>'.$post.'</code> '.$wa.
              ' <code>'.$korr.'</code>';
           $post=$korr;
@@ -173,6 +173,8 @@ public static function config_split_data($data) {
    #      [col_text_2[green]]   Integer
    #      [col_text_2[blue]]    Integer
    #      [col_text_2[opac]]    Integer
+   #   benutzte functions:
+   #      self::split_color($color)
    #
    $keys=array_keys($data);
    for($i=0;$i<count($keys);$i=$i+1):
@@ -181,18 +183,44 @@ public static function config_split_data($data) {
       if(substr($key,0,4)!='col_'):
         $daten[$key]=$val;
         else:
-        $kr=$key.'[red]';
-        $kg=$key.'[green]';
-        $kb=$key.'[blue]';
-        $ko=$key.'[opac]';
-        $arr=explode(',',$val);
-        $daten[$kr]=trim(substr($arr[0],5));
-        $daten[$kg]=trim($arr[1]);
-        $daten[$kb]=trim($arr[2]);
-        $daten[$ko]=trim(substr($arr[3],0,strlen($arr[3])-1));
+        $col=self::split_color($val);
+        $daten[$key.'[red]']  =$col[red];
+        $daten[$key.'[green]']=$col[green];
+        $daten[$key.'[blue]'] =$col[blue];
+        $daten[$key.'[opac]'] =$col[opac];
         endif;
       endfor;
    return $daten;
+   }
+public static function split_color($color) {
+   #   Rueckgabe der RGBA-Komponenten eines RGBA-Farbstrings
+   #   in Form eines assoziativen Arrays mit diesen Keys:
+   #      [red]    rote Komponente
+   #      [green]  gruene Komponente
+   #      [blue]   blaue Komponente
+   #      [opac]   Deckungsgrad
+   #   $color            RGBA-String der Farbe
+   #
+   $arr=explode(',',$color);
+   $red  =trim(substr($arr[0],5));
+   $green=trim($arr[1]);
+   $blue =trim($arr[2]);
+   $opac =trim(substr($arr[3],0,strlen($arr[3])-1));
+   return array("red"=>$red, "green"=>$green, "blue"=>$blue, "opac"=>$opac);
+   }
+public static function nearly_white($color) {
+   #   Entscheidung, ob eine gegebene Farbe nahezu weiss ist
+   #   $color            RGBA-String der Farbe
+   #   benutzte functions:
+   #      self::split_color($color)
+   #
+   $thresh=220;    // Schwellwert
+   $arr=self::split_color($color);
+   if($arr[red]>$thresh and $arr[green]>$thresh and $arr[blue]>$thresh):
+     return TRUE;
+     else:
+     return FALSE;
+     endif;
    }
 public static function config_join_data($daten) {
    #   Zusammenfuehren des Arrays der eingelesenen Konfigurationsdaten
@@ -236,6 +264,7 @@ public static function config_form($msg,$daten) {
    #                     (Keys vergl. config_split_data)
    #   benutzte functions:
    #      self::menuestrings()
+   #      self::nearly_white($color)
    #
    # --- Menütexte, Konstanten
    $txt=self::menuestrings();
@@ -315,18 +344,23 @@ public static function config_form($msg,$daten) {
         $string=$string.'
            <td '.$sty.'><input '.$stc.' type="text" name="'.$key.'" value="'.$val.'" style="width:'.$width.'px; text-align:right;" /></td>';
         #
-        # --- Kontrollfeld
+        # --- Kontrollfelder
         if(strpos($key,'[opac]')>0):
           if($iw==8 or $iw==9 or $iw==11 or $iw==13):
-            $pwidth=intval($width+10);
-            $bgcol ='background-color:'.$rgba[10].';';
+            #     Linktext und Randfarben
+            $pwidth=intval(40+$daten[$longkeys[2]]/4);
+            $pwidth=90;
             $col   =$rgba[$iw];
+            $bgcol='background-color:inherit;';
+            if(self::nearly_white($col)) echo "<div>$col ist nahezu weiß</div>\n";
+            if(self::nearly_white($col)) $bgcol='background-color:'.$rgba[10].';';
             $border='border-style:none;';
             endif;
           if($iw==10 or $iw==12 or $iw==14):
-            $pwidth =$daten[$longkeys[2]];
-            $bgcol ='background-color:'.$rgba[$iw].';';
+            #     Hintergrundfarben
+            $pwidth=$daten[$longkeys[2]];
             $col   =$rgba[8];
+            $bgcol ='background-color:'.$rgba[$iw].';';
             if($iw==14) $col=$rgba[$iw+1];
             $borcol=$rgba[$iw-1];
             $border='border-radius:'.$daten[$longkeys[7]].'em;
@@ -336,9 +370,10 @@ public static function config_form($msg,$daten) {
                              border-bottom:solid '.$daten[$longkeys[6]].'px '.$borcol.';';
             endif;
           if($iw==15):
-            $pwidth=intval($width+10);
-            $bgcol ='background-color:'.$rgba[14].';';
+            #     Text des aktuellen Artikels
+            $pwidth=90;
             $col   =$rgba[$iw];
+            $bgcol ='background-color:'.$rgba[14].';';
             $border='border-style:none;';
             endif;
           $string=$string.'
