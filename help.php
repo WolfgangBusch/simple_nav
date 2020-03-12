@@ -3,26 +3,24 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Juli 2018
+ * @version MÃ¤rz 2020
  */
 $string='
-<ul>
-    <li>Dieses AddOn bietet ein System zur Erzeugung einer einfachen
-        Navigation für Websites. Es ist mit jedem URL-Rewriter
-        nutzbar.</li>
-    <li>Navigationen können für beliebige Kategorien eingerichtet
-        werden und umfassen alle Artikel und Unterkategorien dieser
-        Basiskategorie.</li>
-    <li>In der Navigation werden nur Artikel und Kategorien angezeigt,
-        die online sind. Offline-Kategorien sind daher samt ihren
-        Artikeln grundsätzlich &quot;verborgen&quot;.</li>
-    <li>Die Darstellung erfolgt in Form von untereinander angeordneten
-        Zeilen mit Links auf Nachbarseiten des aktuell angezeigten
-        Artikels.</li>
-    <li>Umfang und Layout der Navigationszeilen sind konfigurierbar.
-        Die Sprachversion der verlinkten Nachbarseiten entspricht
-        derjenigen des aktuellen Artikels.</li>
-</ul>
-';
-echo utf8_encode($string);
+<div>Dieses AddOn bietet ein System zur Erzeugung einer einfachen
+Navigation fÃ¼r Websites. Es ist mit jedem URL-Rewriter nutzbar.</div>
+
+<div><br/>Navigationen kÃ¶nnen fÃ¼r beliebige Kategorien eingerichtet
+werden und umfassen alle Artikel und Unterkategorien der gewÃ¤hlten
+Basiskategorie. Offline-Artikel sind grundsÃ¤tzlich "verborgen",
+ebenso Offline-Kategorien samt allen ihren Artikeln.</div>
+
+<div><br/>Die Darstellung erfolgt in Form untereinander angeordneter
+Zeilen mit Links auf Nachbarseiten des aktuell angezeigten Artikels.
+Die Sprachversion der verlinkten Nachbarseiten entspricht derjenigen
+des aktuellen Artikels. Die Zeilen werden ggf. umgebrochen, aber im
+Falle langer WÃ¶rter nicht abgeschnitten.</div>
+
+<div><br/>Umfang und Layout der Navigationszeilen sind
+konfigurierbar.</div>';
+echo $string;
 ?>

@@ -1,25 +1,37 @@
 # simple_nav
+<h4>Version 1.4.0</h4>
+<ul>
+    <li>Die Kindartikel und Unterkategorien des Basisartikels einer
+        Navigation werden jetzt immer angezeigt. Bisher war das nicht so,
+        wenn der Basisartikel der Navigation nicht der Site-Startartikel
+        war (Navigationstypen 1 und 2).</li>
+    <li>Neu gesetzte Konfigurationsdaten sind jetzt ohne re-install
+        sofort wirksam.</li>
+    <li>Bei der De-Installation werden die Konfigurationsdaten nicht
+        mehr gelÃ¶scht.</li>
+    <li>Die AddOn-Dateien sind jetzt grundsÃ¤tzlich in UTF8 codiert.</li>
+</ul>
 <h4>Version 1.3.0</h4>
 <ul>
-    <li>Das AddOn wurde grundlegend überabeitet und neu strukturiert.</li>
-    <li>Die Function zur Ausgabe einer Navigation enthält jetzt die
-        nötigen echo-Anweisungen selbst, sodass der entsprechende Aufruf
-        im Template geändert werden muss (vergl. Beschreibung).</li>
+    <li>Das AddOn wurde grundlegend Ã¼berabeitet und neu strukturiert.</li>
+    <li>Die Function zur Ausgabe einer Navigation enthÃ¤lt jetzt die
+        nÃ¶tigen echo-Anweisungen selbst, sodass der entsprechende Aufruf
+        im Template geÃ¤ndert werden muss (vergl. Beschreibung).</li>
 </ul>
 <h4>Version 1.2.0</h4>
 <ul>
     <li>Die Stylesheet-Datei liegt jetzt im AddOn-Unterverzeichnis 'assets'.
-        Dort hinein werden auch Konfigurationseinträge eingetragen, sodass
+        Dort hinein werden auch KonfigurationseintrÃ¤ge eingetragen, sodass
         erst mit einem re-Install das Stylesheet wirksam wird.</li>
     <li>Die Stylesheet-Datei wird jetzt auch auf der Beispiel-Seite
         im Backend benutzt.</li>
 </ul>
 <h4>Version 1.1.0</h4>
 <ul>
-    <li>Die Konfiguration der Navigationsparameter wurde so geändert,
-        dass sie auch mit älteren PHP-Versionen funktioniert
+    <li>Die Konfiguration der Navigationsparameter wurde so geÃ¤ndert,
+        dass sie auch mit Ã¤lteren PHP-Versionen funktioniert
         (define von Array-Konstanten erst ab PHP-Version 7 erlaubt).</li>
     <li>Die Backendseiten zur Konfiguration und zum simple_nav-Beispiel
-        sind neu überarbeitet.</li>
+        sind neu Ã¼berarbeitet.</li>
     <li>Die deutsche Bezeichnung ist jetzt 'Einfache Navigation'.</li>
 </ul>
