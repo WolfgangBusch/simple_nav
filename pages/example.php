@@ -3,7 +3,7 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Juli 2018
+ * @version März 2020
  */
 simple_nav_config::example();
 ?>

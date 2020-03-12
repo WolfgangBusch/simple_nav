@@ -3,7 +3,7 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Juli 2018
+ * @version M√§rz 2020
  */
 #
 # --- Beschreibung
@@ -20,20 +20,20 @@ variiert werden:</div>
     <li>der aktuelle Artikel</li>
     <li>seine Geschwisterartikel und -kategorien
         [bei online-Elternkategorie]</li>
-    <li>seine Kindartikel</li>
+    <li>seine Kindartikel [soweit vorhanden]</li>
 </ul>
 
 <div><br/><b>Normalkonfiguration (Typ 2):</b></div>
 <ul style="padding-left:30px; margin-bottom:0px;">
-    <li>Minimalkonfiguration und zus‰tzlich:</li>
+    <li>Minimalkonfiguration und zus√§tzlich:</li>
     <li>alle Geschwisterkategorien im Pfad des aktuellen Artikels</li>
 </ul>
 
 <div><br/><b>Maximalkonfiguration (Typ 3):</b></div>
 <ul style="padding-left:30px; margin-bottom:0px;">
-    <li>Normalkonfiguration und zus‰tzlich:</li>
+    <li>Normalkonfiguration und zus√§tzlich:</li>
     <li>alle Geschwisterartikel im Pfad des aktuellen Artikels</li>
 </ul>
 ';
-echo utf8_encode($string);
+echo $string;
 ?>

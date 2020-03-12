@@ -3,35 +3,33 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version Juli 2018
+ * @version MÃ¤rz 2020
  */
 $sty="style=\"padding-left:20px;\"";
 $string='
 <div><b>Erzeugung einer Navigation:</b></div>
 <div style="padding-left:20px;">
-Navigationen können für beliebige Kategorien eingerichtet werden und
-umfassen alle Artikel und Unterkategorien dieser Basiskategorie.
-In das Template für die zugehörigen Artikel wird eine entsprechende
-Navigation mit dem Kategorie-Startartikel als Basisartikel eingefügt,
+Navigationen kÃ¶nnen fÃ¼r beliebige Kategorien eingerichtet werden.
+In das Template fÃ¼r die zugehÃ¶rigen Artikel wird eine entsprechende
+Navigation mit dem Kategorie-Startartikel als Basisartikel eingefÃ¼gt,
 und zwar durch eine solche PHP-Anweisung:<br/>
 <code>simple_nav::print_navigation($bas_id,$b_line);</code>
-<div style="padding-left:20px;">
-<tt>$bas_id</tt> &nbsp; Id des Navigations-Basisartikels
-(Default: Site-Startartikel-Id)<br/>
-<tt>$b_line</tt> &nbsp; = <tt>TRUE/FALSE</tt>:
+<div '.$sty.'"><tt>$bas_id </tt> &nbsp; Id des
+Navigations-Basisartikels (Default: Site-Startartikel-Id)<br/>
+<tt>$b_line </tt> &nbsp; = <tt>TRUE/FALSE</tt>:
 Die Basisartikel-Zeile selbst wird angezeigt / nicht angezeigt
 (Default: FALSE)</div>
 </div>
 
 <div><br/><b>Anpassung von Formen, Farben und Trennlinien an das
 Site-Layout:</b></div>
-<div style="padding-left:20px;">
+<div '.$sty.'">
 Die Navigationszeilen sind zweifach geschachtelte div-Container.
-Der äußere Container bestimmt das Layout der Zeile, der innere legt
-die berechnete Einrückung des Linktextes fest. Jede Zeile hat einen
-HTML-Code der folgenden Form (zur einfacheren Beschreibung wird hier
-ein Pfad-orientierter URL angenommen):
-<div style="padding-left:20px;">
+Der Ã¤uÃŸere Container bestimmt das Layout der Zeile, der innere legt
+die berechnete EinrÃ¼ckung des Linktextes fest. Jede Zeile hat einen
+HTML-Code der folgenden Form (der Einfachheit halber wird hier ein
+Pfad-orientierter URL angenommen):
+<div '.$sty.'">
 <pre style="margin:5px; background-color:inherit;">
 &lt;div class="'.DIV_CLASS.' '.DIV_TYP.'0"&gt;
     &lt;div style="margin-left:20px;"&gt;
@@ -39,16 +37,15 @@ ein Pfad-orientierter URL angenommen):
     &lt;/div&gt;
 &lt;/div&gt;
 </pre>
-<table cellpadding="0" cellspacing="0" style="background-color:inherit;">
-    <tr><td '.$sty.'><tt>start</tt></td>
-        <td '.$sty.'>Site-Startkategorie</td></tr>
-    <tr><td '.$sty.'><tt>basis</tt></td>
-        <td '.$sty.'>Basiskategorie der Navigation</td></tr>
-    <tr><td '.$sty.'><tt>20px</tt></td>
-        <td '.$sty.'>Einrückung des Artikels <tt>cccc.html</tt>
-            (hier je 10 Pixel pro Kategorie-Hierarchie)</td></tr>
-</table>
-Die css-Klassen für den äußeren div-Container sind konfigurierbar
-und werden in einer Stylesheet-Datei abgelegt.</div>';
-echo utf8_encode($string);
+<div '.$sty.'><tt>typ0&nbsp;</tt> &nbsp; Normaltyp einer
+Navigationszeile (<tt>typ2: </tt>aktuelle Seite,
+<tt> typ1: </tt>Urahne der aktuellen Seite)</div>
+<div '.$sty.'><tt>20px&nbsp;</tt> &nbsp; EinrÃ¼ckung von je 10 Pixel
+pro Kategorie-Hierarchie des Artikels <tt>cccc.html</tt></div>
+<div '.$sty.'><tt>start</tt> &nbsp; Site-Startkategorie</div>
+<div '.$sty.'><tt>basis</tt> &nbsp; Basiskategorie der Navigation</div>
+Die css-Klassen fÃ¼r den Ã¤uÃŸeren div-Container sind konfigurierbar
+und werden in einer Stylesheet-Datei abgelegt. Auch die Breite der
+EinrÃ¼ckung (oben: 10 Pixel pro Level) kann konfiguriert werden.</div>';
+echo $string;
 ?>
