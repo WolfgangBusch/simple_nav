@@ -1,4 +1,10 @@
 # simple_nav
+<h4>Version 1.4.1</h4>
+<ul>
+    <li>Die function get_config_data() ist wieder eingefügt, sodass die
+        Installation nun ohne Fehler funktioniert.</li>
+</ul>
+
 <h4>Version 1.4.0</h4>
 <ul>
     <li>Die Kindartikel und Unterkategorien des Basisartikels einer
@@ -11,6 +17,7 @@
         mehr gelöscht.</li>
     <li>Die AddOn-Dateien sind jetzt grundsätzlich in UTF8 codiert.</li>
 </ul>
+
 <h4>Version 1.3.0</h4>
 <ul>
     <li>Das AddOn wurde grundlegend überabeitet und neu strukturiert.</li>
@@ -18,6 +25,7 @@
         nötigen echo-Anweisungen selbst, sodass der entsprechende Aufruf
         im Template geändert werden muss (vergl. Beschreibung).</li>
 </ul>
+
 <h4>Version 1.2.0</h4>
 <ul>
     <li>Die Stylesheet-Datei liegt jetzt im AddOn-Unterverzeichnis 'assets'.
@@ -26,6 +34,7 @@
     <li>Die Stylesheet-Datei wird jetzt auch auf der Beispiel-Seite
         im Backend benutzt.</li>
 </ul>
+
 <h4>Version 1.1.0</h4>
 <ul>
     <li>Die Konfiguration der Navigationsparameter wurde so geändert,

@@ -1,5 +1,5 @@
 package: simple_nav
-version: '1.4.0'
+version: '1.4.1'
 author: 'Wolfgang Busch'
 supportpage: redaxo.org/forum/
 
@@ -14,4 +14,4 @@ page:
         settings:     { title: 'translate:settings' }
 
 requires:
-    redaxo: ^5.1.0
+    redaxo: ^5.3.0
