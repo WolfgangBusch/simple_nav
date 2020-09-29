@@ -3,7 +3,7 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version März 2020
+ * @version September 2020
  */
 #   print_navigation($bas_id,$b_line,$act_id,$navtyp)
 #      get_default_data()
@@ -35,14 +35,14 @@ public static function get_default_data() {
    #   Rueckgabe der Default-Werte der Stylesheet-Daten als assoziatives Array
    #
    $defdata=array(
-      'navtyp'      =>2,
-      'indent'      =>10,
-      'width'       =>150,
+      'navtyp'      =>'2',
+      'indent'      =>'10',
+      'width'       =>'150',
       'line_height' =>'0.8',
       'font_size'   =>'0.8',
-      'bor_lrwidth' =>0,
-      'bor_ouwidth' =>1,
-      'bor_rad'     =>0,
+      'bor_lrwidth' =>'0',
+      'bor_ouwidth' =>'1',
+      'bor_rad'     =>'0',
       'col_link'    =>'rgba(153, 51,  0,1)',
       'col_border_0'=>'rgba(255,190, 60,1)',
       'col_backgr_0'=>'rgba(255,255,255,0)',

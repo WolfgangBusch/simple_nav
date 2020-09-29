@@ -3,7 +3,7 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version März 2020
+ * @version September 2020
  */
 #   simple_nav-Functions:
 #      get_default_data()
@@ -13,6 +13,7 @@
 #      config()
 #         get_default_data()
 #         split_data($data)
+#            split_color($color)
 #         join_data($daten)
 #         set_config_data($data)
 #         write_css_file($data)
@@ -98,7 +99,7 @@ public static function config() {
    for($i=0;$i<count($longkeys);$i=$i+1):
       $key=$longkeys[$i];
       $post='';
-      if(!empty($_POST[$key]) or $_POST[$key]=='0'):
+      if(!empty($_POST[$key])):
         $post=$_POST[$key];
         else:
         $post=$daten[$key];
@@ -158,6 +159,24 @@ public static function config() {
    # --- Warnmeldungen und Eingabeformular ausgeben
    echo $msg.self::config_form($txt,$daten);
    }
+public static function get_config_data() {
+   #   Rueckgabe der konfigurierten Daten
+   #   benutzte functions:
+   #      self::get_default_data()
+   #
+   # --- Default-Konfigurationsdaten
+   $defdat=self::get_default_data();
+   $keys=array_keys($defdat);
+   #
+   # --- Auslesen der Konfigurationsdaten
+   $keys=array_keys($defdat);
+   $confdat=array();
+   for($i=0;$i<count($keys);$i=$i+1):
+      $dat=rex_config::get('simple_nav',$keys[$i]);
+      if(!empty($dat) or $dat=='0') $confdat[$keys[$i]]=$dat;
+      endfor;
+   return $confdat;
+   }
 public static function set_config_data($data) {
    #   Schreiben der Konfigurationsdaten
    #   $data             Array der zu schreibenden Daten
@@ -165,7 +184,6 @@ public static function set_config_data($data) {
    $keys=array_keys($data);
    for($i=0;$i<count($keys);$i=$i+1):
       $val=$data[$keys[$i]];
-      if(is_int($val) or $val=='0') $val=intval($val);
       rex_config::set('simple_nav',$keys[$i],$val);
       endfor;
    }
@@ -349,7 +367,7 @@ public static function config_form($txt,$daten) {
             endif;
           if($iw==9 or $iw==11 or $iw==13):  // Randfarben
               $style1='style="width:60px;"';
-              $style2='style="padding-left:3px; font-size:0.5em; '.$bgcol.
+              $style2='style="padding-left:3px; font-size:0.5em; '.
                       'border-top:   solid '.$daten[$longkeys[6]].'px '.$rgba[$iw].';'.
                       'border-bottom:solid '.$daten[$longkeys[6]].'px '.$rgba[$iw].';'.
                       'border-left:  solid '.$daten[$longkeys[5]].'px '.$rgba[$iw].';'.
