@@ -1,4 +1,12 @@
 # simple_nav
+<h4>Version 1.5</h4>
+<ul>
+    <li>Die Navigation ist jetzt auf Smartphone-Displays normalerweise
+        ausgeblendet, kann aber über einen Schalter ein- und
+        ausgeblendet werden (responsives Design).</li>
+    <li>Mit der De-Installation des AddOns wird auch sein Namespace
+        gelöscht.</li>
+</ul>
 <h4>Version 1.4.1</h4>
 <ul>
     <li>Die function get_config_data() ist wieder eingefügt, sodass die
