@@ -3,10 +3,9 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version September 2020
+ * @version April 2021
  */
-#   print_navigation($bas_id,$b_line,$act_id,$navtyp)
-#      get_default_data()
+#   print_navigation($bas_id,$b_line)
 #      redaxo_path($article)
 #      get_path($article,$bas_id)
 #         redaxo_path($article)
@@ -22,50 +21,26 @@
 #         get_path($article,$bas_id)
 #            redaxo_path($article)
 #      sort($entries)
-#      print_line($lines,$zus,$increment)
+#      print_line($lines,$increment)
+#      hamburger_icon()
 #
-# --- simple_nav-Klassennamen fuer die div-Container
-define('DIV_TYP',   'typ');         // da wird noch angehaengt: '0', '1' oder '2'
-define('DIV_CLASS', 'simple_nav');
-define('DIV_CLASS1','simple_nav1');
+#     simple_nav-Klassennamen fuer die div-Container
+define ('DIV_TYP',       'typ');         // da wird noch angehaengt: '0', '1' oder '2'
+define ('DIV_BORDER',    'border');
+define ('DIV_BORDER1',   'border1');
+define ('DIV_FORMAT',    'format');
+#     Zeilenparameter-Namen
+define ('LINE_ID',       'id');
+define ('LINE_PARENT_ID','parent_id');
+define ('LINE_LEVEL',    'level');
+define ('LINE_NR',       'nr');
+define ('LINE_NAME',     'name');
+define ('LINE_URL',      'url');
+define ('LINE_STATUS',   'status');
+define ('LINE_TYP',      'typ');
 #
 class simple_nav {
 #
-public static function get_default_data() {
-   #   Rueckgabe der Default-Werte der Stylesheet-Daten als assoziatives Array
-   #
-   $defdata=array(
-      'navtyp'      =>'2',
-      'indent'      =>'10',
-      'width'       =>'150',
-      'line_height' =>'0.8',
-      'font_size'   =>'0.8',
-      'bor_lrwidth' =>'0',
-      'bor_ouwidth' =>'1',
-      'bor_rad'     =>'0',
-      'col_link'    =>'rgba(153, 51,  0,1)',
-      'col_border_0'=>'rgba(255,190, 60,1)',
-      'col_backgr_0'=>'rgba(255,255,255,0)',
-      'col_border_1'=>'rgba(255,190, 60,1)',
-      'col_backgr_1'=>'rgba(255,190, 60,0.3)',
-      'col_border_2'=>'rgba(255,190, 60,1)',
-      'col_backgr_2'=>'rgba(204,102, 51,1)',
-      'col_text_2'  =>'rgba(255,255,255,1)');
-   #
-   # --- Trimmen der rgba-Parameter
-   $keys=array_keys($defdata);
-   for($i=0;$i<count($keys);$i=$i+1):
-      $key=$keys[$i];
-      $val=$defdata[$key];
-      if(substr($key,0,4)=='col_'):
-        $arr=explode(',',$val);
-        $val='rgba('.trim(substr($arr[0],5)).','.trim($arr[1]).','.
-           trim($arr[2]).','.trim(substr($arr[3],0,strlen($arr[3])-1)).')';
-        $defdata[$key]=$val;
-        endif;
-      endfor;
-   return $defdata;
-   }
 public static function redaxo_path($article) {
    #   Rueckgabe des Redaxo-Artikel-Parameters 'path' (=$article->getValue('path')).
    #   $article          der Artikel (Objekt)
@@ -260,17 +235,17 @@ public static function subcats_of_category($cat,$act_article,$bas_id,$navtyp) {
 public static function set_artnavpar($article,$nr,$act_id,$act_first,$bas_id,$b_line) {
    #   Rueckgabe der fuer die Navigation noetigen Parameter eines Artikels
    #   als assoziatives Array mit diesen Keys:
-   #      ['id']         Artikel-Id
-   #      ['parent_id']  Id der Eltern-Kategorie
-   #      ['name']       Name des Artikels (rex_article.name)
-   #      ['url']        URL des Artikels (mittels rex_getUrl(id))
-   #      ['status']     Status des Artikels (Online/Offline: 1/0)
-   #      ['level']      Level der Navigation (=1,2,3,...)
-   #      ['nr']         anfaengliche Nummer der Navigationszeile
-   #      ['typ']        Typ der Navigationszelle:
-   #                     =2: aktueller Artikel
-   #                     =1: aeltester Ahne
-   #                     =0: sonst
+   #      [LINE_ID]         Artikel-Id
+   #      [LINE_PARENT_ID]  Id der Eltern-Kategorie
+   #      [LINE_NAME]       Name des Artikels (rex_article.name)
+   #      [LINE_URL]        URL des Artikels (mittels rex_getUrl(id))
+   #      [LINE_STATUS]     Status des Artikels (Online/Offline: 1/0)
+   #      [LINE_LEVEL]      Level der Navigation (=1,2,3,...)
+   #      [LINE_NR]         anfaengliche Nummer der Navigationszeile
+   #      [LINE_TYP]        Typ der Navigationszelle:
+   #                        =2: aktueller Artikel
+   #                        =1: aeltester Ahne
+   #                        =0: sonst
    #   $article          gegebener Artikel (Objekt)
    #   $nr               Nummer der Navigationszeile
    #   $act_id           Id des aktuellen Artikels
@@ -284,19 +259,19 @@ public static function set_artnavpar($article,$nr,$act_id,$act_first,$bas_id,$b_
    $id=$article->getId();
    $st=$article->isStartArticle();
    $entry=array();
-   $entry['id']       =$id;
-   $entry['parent_id']=$article->getParentId();
-   $entry['name']     =htmlspecialchars($article->getName()); // fuer & < > im Namen
-   $entry['url']      =rex_getUrl($id);
-   $entry['status']   =$article->isOnline();
-   $entry['level']    =substr_count(self::get_path($article,$bas_id),'|');
+   $entry[LINE_ID]       =$id;
+   $entry[LINE_PARENT_ID]=$article->getParentId();
+   $entry[LINE_NAME]     =htmlspecialchars($article->getName()); // fuer & < > im Namen
+   $entry[LINE_URL]      =rex_getUrl($id);
+   $entry[LINE_STATUS]   =$article->isOnline();
+   $entry[LINE_LEVEL]    =substr_count(self::get_path($article,$bas_id),'|');
    if(!$b_line and $id!=$bas_id)
-     $entry['level']  =$entry['level']-1;
-   $entry['nr']       =$nr;
+     $entry[LINE_LEVEL]  =$entry[LINE_LEVEL]-1;
+   $entry[LINE_NR]       =$nr;
    $typ=0;
    if($id==$act_first) $typ=1;
    if($id==$act_id)    $typ=2;
-   $entry['typ']      =$typ;
+   $entry[LINE_TYP]      =$typ;
    return $entry;
    }
 public static function sort($entries) {
@@ -309,31 +284,31 @@ public static function sort($entries) {
    #      3) Rest bleibt unsortiert
    #   Teil 2 (der unsortierte Rest):
    #      nach Level absteigend
-   #      bei gleichem Level: urspruengliche Reihenfolge (nur hierfuer wird ['nr']
+   #      bei gleichem Level: urspruengliche Reihenfolge (nur hierfuer wird [LINE_NR]
    #                          gebraucht)
    #   $entries          nummeriertes Array der unsortierten Navigationseintraege
    #                     (Nummerierung ab 1); jeder Navigationseintrag ist ein
    #                     assoziatives Array mit diesen Schluesseln:
-   #      ['id']         Artikel-Id
-   #      ['parent_id']  Id der Eltern-Kategorie
-   #      ['level']      Level der Navigation (=1,2,3,...)
-   #      ['nr']         anfaengliche Nummer der Navigationszeile
-   #      ['name']       Name des Artikels          (hier nicht benutzt)
-   #      ['url']        URL des Artikels           (hier nicht benutzt)
-   #      ['status']     Status des Artikels        (hier nicht benutzt)
-   #      ['typ']        Typ der Navigationszeile   (hier nicht benutzt)
+   #      [LINE_ID]         Artikel-Id
+   #      [LINE_PARENT_ID]  Id der Eltern-Kategorie
+   #      [LINE_LEVEL]      Level der Navigation (=1,2,3,...)
+   #      [LINE_NR]         anfaengliche Nummer der Navigationszeile
+   #      [LINE_NAME]       Name des Artikels          (hier nicht benutzt)
+   #      [LINE_URL]        URL des Artikels           (hier nicht benutzt)
+   #      [LINE_STATUS]     Status des Artikels        (hier nicht benutzt)
+   #      [LINE_TYP]        Typ der Navigationszeile   (hier nicht benutzt)
    #
    $entr=$entries;
    #
    # --- Teil 1
    $levmax=0;
    for($i=1;$i<=count($entr);$i=$i+1):
-      $lev=$entr[$i]['level'];
+      $lev=$entr[$i][LINE_LEVEL];
       if($lev>$levmax) $levmax=$lev;
-      $id=$entr[$i]['id'];
+      $id=$entr[$i][LINE_ID];
       $m=$i;
       for($k=$i+1;$k<=count($entr);$k=$k+1):
-         if($entr[$k]['parent_id']==$id):  // Offline-Kategorien nicht auslassen!!!
+         if($entr[$k][LINE_PARENT_ID]==$id):  // Offline-Kategorien nicht auslassen!!!
            $m=$m+1;
            $ent=$entr[$m];
            $entr[$m]=$entr[$k];
@@ -346,17 +321,17 @@ public static function sort($entries) {
    $start=0;
    $level=0;
    for($i=1;$i<=count($entr);$i=$i+1):
-      $lev=$entr[$i]['level'];
+      $lev=$entr[$i][LINE_LEVEL];
       if($start<=0 and $lev>=$level):
         $level=$lev;
         if($lev==$levmax) $start=1;
         if($start<=0) continue;
         endif;
       for($k=$i+1;$k<=count($entr);$k=$k+1):
-         $lev=$entr[$i]['level'];
-         $nu=$entr[$i]['nr'];
-         $level=$entr[$k]['level'];
-         $numm=$entr[$k]['nr'];
+         $lev=$entr[$i][LINE_LEVEL];
+         $nu=$entr[$i][LINE_NR];
+         $level=$entr[$k][LINE_LEVEL];
+         $numm=$entr[$k][LINE_NR];
          if($level>$lev or ($level==$lev and $numm<$nu)):
            $ent=$entr[$i];
            $entr[$i]=$entr[$k];
@@ -366,115 +341,109 @@ public static function sort($entries) {
       endfor;
    return $entr;
    }
-public static function print_line($lines,$zus,$increment) {
+public static function print_line($lines,$increment) {
    #   Rueckgabe aller Navigationszeilen
    #   $lines            nummeriertes Array der Daten der Navigationszeilen, jede
    #                     Zeile ist ein assoziatives Array mit diesen Schluesseln:
-   #      ['name']       Name des Artikels (rex_article.name)
-   #      ['url']        URL des Artikels
-   #      ['level']      Level der Navigation (=1,2,3,...)
-   #      ['typ']        Typ der Navigationszeile:
-   #                     =2: aktueller Artikel
-   #                     =1: Ahne der ersten Generation (Hauptkategorie)
-   #                     =0: sonst
-   #      ['id']         Artikel-Id                    (hier nicht benutzt)
-   #      ['parent_id']  Id der Eltern-Kategorie       (hier nicht benutzt)
-   #      ['status']     Status des Artikels           (hier nicht benutzt)
-   #      ['nr']         anf. Nr. der Navigationszeile (hier nicht benutzt)
-   #   $zus              Namenszusatz zu Stylesheet-Klassennamen
+   #      [LINE_NAME]       Name des Artikels (rex_article.name)
+   #      [LINE_URL]        URL des Artikels
+   #      [LINE_LEVEL]      Level der Navigation (=1,2,3,...)
+   #      [LINE_TYP]        Typ der Navigationszeile:
+   #                        =2: aktueller Artikel
+   #                        =1: Ahne der ersten Generation (Hauptkategorie)
+   #                        =0: sonst
+   #      [LINE_ID]         Artikel-Id                    (hier nicht benutzt)
+   #      [LINE_PARENT_ID]  Id der Eltern-Kategorie       (hier nicht benutzt)
+   #      [LINE_STATUS]     Status des Artikels           (hier nicht benutzt)
+   #      [LINE_NR]         anf. Nr. der Navigationszeile (hier nicht benutzt)
    #   $increment        Einrueckung pro Level in Anzahl Pixel
+   #   benutzte functions:
+   #      self::hamburger_icon()
    #
    # --- Ausgabestring
    $ausgabe='';
    for($i=1;$i<=count($lines);$i=$i+1):
-      $name  =$lines[$i]['name'];
-      $url   =$lines[$i]['url'];
-      $level =$lines[$i]['level'];
-      $typ   =$lines[$i]['typ'];
-      $did   =DIV_TYP.strval($typ).$zus;
+      $name  =$lines[$i][LINE_NAME];
+      $url   =$lines[$i][LINE_URL];
+      $level =$lines[$i][LINE_LEVEL];
+      $typ   =$lines[$i][LINE_TYP];
+      $did   =DIV_TYP.strval($typ);
       $indent=intval(($level-1)*$increment);
       $text  =$name;
       if($typ!=2) $text='<a href="'.$url.'">'.$name.'</a>';
       $style ='margin-left:'.$indent.'px;';
-      $class =DIV_CLASS.$zus;
-      if($i==1) $class=DIV_CLASS1.$zus;
-      $class =$class.' '.$did;
+      $class =DIV_BORDER;
+      if($i==1) $class=DIV_BORDER1;
+      $class =$class.' '.DIV_FORMAT.' '.$did;
       $ausgabe=$ausgabe.'
 <div class="'.$class.'"><div style="'.$style.'">'.$text.'</div></div>';
       endfor;
-   return substr($ausgabe,2);
+   #
+   # --- Zeilen in div-Container mit id NAVIGATION packen
+   $ausgabe='<div id="'.NAVIGATION.'">'.$ausgabe.'
+</div>';
+   #
+   # --- Hamburger-/Kreuz-Icon vorne anfuegen
+   $ausgabe='
+<!----- Start Navigation -------------------------->'.
+   self::hamburger_icon().
+   $ausgabe.'
+<!----- Ende Navigation --------------------------->
+';
+   return $ausgabe;
    }
-public static function print_navigation($bas_id='',$b_line='',$act_id='',$navtyp='') {
+public static function print_navigation($basid=0,$bline=FALSE,$actid=0) {
    #   Berechnung und Ausgabe einer automatischen vertikalen Navigation sowie
    #   Rueckgabe der Anzahl der Navigationszeilen.
-   #   $bas_id           Id des Navigations-Basisartikels
-   #                     (Default: Id des Site-Startartikels)
-   #   $b_line           =TRUE/FALSE: Basisartikel-Zeile wird angezeigt
+   #   $basid            Id des Navigations-Basisartikels
+   #                     (falls leer: Id des Site-Startartikels)
+   #   $bline            =TRUE/FALSE: Basisartikel-Zeile wird angezeigt
    #                     / nicht angezeigt (Default: FALSE)
-   #   $act_id           Id des aktuellen Artikels (falls leer, wird die Id
-   #                     ermittelt als: rex_article::getCurrentId())
-   #   $navtyp           Navigationstyp (falls leer, wird der entsprechende
-   #                     Konfigurationsparameter genommen)
-   #   Konfigurationsparameter Navigationstyp:
-   #      Werte =1/2/3 (Default: 2)
-   #            =1 (Minimalkonfiguration):
-   #               - alle Kindartikel des Basisartikels der Navigation
-   #               - alle Kindkategorien des Basisartikels der Navigation
-   #               - alle Kategorien im Pfad des aktuellen Artikels
-   #               - der aktuelle Artikel
-   #               - seine Geschwisterartikel/-kategorien [bei online-Elternkategorie] (*)
-   #               - seine Kindartikel (*)
-   #            =2 (Normalkonfiguration):
-   #               - Minimalkonfiguration und zusaetzlich:
-   #               - alle Geschwisterkategorien im Pfad des aktuellen Artikels (*)
-   #            =3 (Maximalkonfiguration):
-   #               - Normalkonfiguration und zusaetzlich:
-   #               - alle Geschwisterartikel im Pfad des aktuellen Artikels
-   #            (*)  nur in Online-Kategorien
+   #   $actid            Id des aktuellen Artikels (ggf. zu Testzwecken ein
+   #                     anderer Artikel, falls 0: Id des aktuellen Artikels)
    #   benutzte functions:
-   #      self::get_default_data()
    #      self::redaxo_path($article)
    #      self::get_path($article,$bas_id)
    #      self::articles_of_category($cat,$act_article,$bas_id,$navtyp)
    #      self::subcats_of_category($cat,$act_article,$bas_id,$navtyp)
    #      self::set_artnavpar($article,$nr,$act_id,$act_first,$bas_id,$b_line)
    #      self::sort($entries)
-   #      self::print_line($lines,$zus,$increment)
+   #      self::print_line($lines,$increment)
    #
-   # --- Ueberpruefung des Navigations-Basisartikels
+   # --- Ueberpruefung der Eingabeparameter
+   $bas_id=$basid;
+   $b_line=$bline;
+   $act_id=$actid;
+   #
+   #     $basid
    $bas_article=rex_article::get($bas_id);
-   #     falls kein Artikel: stattdessen der Site-Startartikel
+   #          falls kein Artikel: stattdessen der Site-Startartikel
    if($bas_article==NULL):
      $bas_article=rex_article::getSiteStartArticle();
      $bas_id=$bas_article->getId();
      endif;
-   #     falls kein Startartikel, stattdessen sein Elternartikel
+   #          falls kein Startartikel: stattdessen sein Elternartikel
    if(!$bas_article->isStartArticle()) $bas_id=$bas_article->getParentId();
    #
-   # --- Ueberpruefung Parameter $b_line
-   if(!empty($b_line)):
-     $b_line=TRUE;
-     else:
-     $b_line=FALSE;
+   #     $b_line
+   if(!empty($b_line)) $b_line=TRUE;
+   #
+   #     $actid
+   if(intval($act_id)<=0) $act_id=rex_article::getCurrentId();
+   $act_article=rex_article::get($act_id);
+   #          falls kein Artikel: stattdessen der aktuelle Artikel
+   if($act_article==NULL):
+     $act_id=rex_article::getCurrentId();
+     $act_article=rex_article::get($act_id);
      endif;
    #
-   # --- Id des aktuellen Artikels
-   if(empty($act_id)) $act_id=rex_article::getCurrentId();
+   # --- konfigurierte Daten: Navigationstyp, Einrueckung in Pixel
+   $navtyp   =rex_config::get(NAVIGATION,NAV_TYP);
+   $increment=rex_config::get(NAVIGATION,NAV_INDENT);
    #
-   # --- Konfigurations-Parameter Navigationstyp
-   $data=self::get_default_data();
-   $keys=array_keys($data);
-   if(empty($navtyp)) $navtyp=rex_config::get('simple_nav',$keys[0]);
-   if(intval($navtyp)<1 or intval($navtyp)>3) $navtyp=2;
-   #
-   # --- Einrueckung in Anzahl Pixel pro Level (Konfigurationsparameter)
-   $increment=rex_config::get('simple_nav',$keys[1]);
-   if(intval($increment)<=0) $increment=$data[$keys[1]];
-   #
-   # --- aktueller Artikel ($act_article, Objekt)
-   $act_article=rex_article::get($act_id);
-   $act_stp    =$act_article->isStartArticle();
-   $act_path   =self::redaxo_path($act_article);
+   # --- weitere Daten zum aktuellen Artikel
+   $act_stp =$act_article->isStartArticle();
+   $act_path=self::redaxo_path($act_article);
    #
    # --- Elternartikel des aktuellen Artikels
    #     (= Artikel selbst, falls Navigations-Basisartikel)
@@ -530,14 +499,38 @@ public static function print_navigation($bas_id='',$b_line='',$act_id='',$navtyp
    $m=0;
    $zeilen=array();
    for($i=1;$i<=count($entries);$i=$i+1)
-      if($entries[$i]['status']==1):
+      if($entries[$i][LINE_STATUS]==1):
         $m=$m+1;
         $zeilen[$m]=$entries[$i];
         endif;
    #
    # --- Ausgabe
-   echo self::print_line($zeilen,'',$increment);
+   echo self::print_line($zeilen,$increment);
    return count($zeilen);
+   }
+public static function hamburger_icon() {
+   #   Rueckgabe des HTML-Codes zur Ausgabe eines Hamburger-Icons/Kreuz-Icons
+   #   als Button fuer einen Schalter zum Anzeigen bzw. Verbergen der Navigation.
+   #   Der Schalter ist realisiert auf der Basis einer Javascript-function.
+   #   Er wird nur auf (schmalen) Smartphone-Displays angezeigt (div-Container
+   #   mit Id HAMBURGER bzw. Id KREUZ) und wird mittels CSS-Codes dargestellt.
+   #
+   return '
+<div id="'.HAMBURGER.'">
+    <a href="#" title="Navigation anzeigen / verbergen"
+       onClick="show_hide(\''.NAVIGATION.'\',\''.HAMBURGER.'\',\''.KREUZ.'\');">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div></a>
+</div>
+<div id="'.KREUZ.'">
+    <a href="#" title="Navigation anzeigen / verbergen"
+       onClick="show_hide(\''.NAVIGATION.'\',\''.HAMBURGER.'\',\''.KREUZ.'\');">
+        <div class="cross1"></div>
+        <div class="cross2"></div>
+        <div class="cross3"></div></a>
+</div>
+';
    }
 }
 ?>

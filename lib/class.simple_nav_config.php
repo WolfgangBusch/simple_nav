@@ -3,45 +3,294 @@
  * simple Navigation AddOn
  * @author wolfgang[at]busch-dettum[dot]de Wolfgang Busch
  * @package redaxo5
- * @version September 2020
+ * @version April 2021
  */
-#   simple_nav-Functions:
+define ('NAVIGATION',     'simple_nav');     // AddOn-Identifier
+define ('SCREEN_MOBILE',  35);               // Stylesheet Smartphone 'max-width:...em'
+define ('HAMBURGER',      'hamburger_icon'); // Id des Icons, das die Navigation anzeigt
+define ('KREUZ',          'kreuz_icon');     // Id des Icons, das die Navigation verbirgt
+#     Konfigurationsparameter-Keys 0 - 15
+define ('NAV_TYP',        'navtyp');
+define ('NAV_INDENT',     'indent');
+define ('NAV_WIDTH',      'width');
+define ('NAV_LINE_HEIGHT','line_height');
+define ('NAV_FONT_SIZE',  'font_size');
+define ('NAV_BOR_LRWIDTH','bor_lrwidth');
+define ('NAV_BOR_OUWIDTH','bor_ouwidth');
+define ('NAV_BOR_RAD',    'bor_rad');
+define ('NAV_COL_LINK',   'col_link');
+define ('NAV_COL_BORD_0', 'col_border_0');
+define ('NAV_COL_BACK_0', 'col_backgr_0');
+define ('NAV_COL_BORD_1', 'col_border_1');
+define ('NAV_COL_BACK_1', 'col_backgr_1');
+define ('NAV_COL_BORD_2', 'col_border_2');
+define ('NAV_COL_BACK_2', 'col_backgr_2');
+define ('NAV_COL_TEXT_2', 'col_text_2');
+#
+#   Installation:
+#   set_configuration()
+#      get_config_data()
 #      get_default_data()
-#      sort($entries)
-#      print_line($entries,$zus,$increment)
-#   Konfiguration:
-#      config()
-#         get_default_data()
-#         split_data($data)
-#            split_color($color)
-#         join_data($daten)
-#         set_config_data($data)
-#         write_css_file($data)
-#            define_css($data,$zus)
-#         config_form($msg,$daten)
+#      set_config_data($data)
+#      write_css_file($data)
+#      write_script_file()
+#   Konfigurationsmenue:
+#   config()
+#      get_default_data()
+#      split_data($data)
+#         split_color($color)
+#      join_data($daten)
+#      set_config_data($data)
+#      write_css_file($data)
+#      write_script_file()
+#      config_form($msg,$daten)
 #   Beispiel-Navigation:
-#      example()
-#         get_default_data()
-#         sort($entries)
-#         print_line($entries,$zus,$increment)
-#         define_css($data,$zus)
-#         example_data()
-#         example_entries($navtyp)
+#   example()
+#      get_config_data()
+#      example_entries($navtyp)
+#      sort($entries)                        [class simple_nav]
+#      print_line($entries,$zus,$increment)  [class simple_nav]
 #
 class simple_nav_config {
 #
-# --------------------------- simple_nav-Functions
+# --------------------------- Installation
+public static function set_configuration() {
+   #   benutzte functions:
+   #      self::get_config_data()
+   #      self::get_default_data()
+   #      self::set_config_data($data)
+   #      self::write_css_file($data)
+   #      self::write_script_file()
+   #
+   # --- Konfigurationsdaten ermitteln, ggf. Default setzen
+   $data=self::get_config_data();
+   if(count($data)<=0):
+     $data=self::get_default_data();
+     self::set_config_data($data);
+     endif;
+   #
+   # --- Stylesheet- und Javascript-Datei schreiben
+   self::write_css_file($data);
+   self::write_script_file();
+   }
 public static function get_default_data() {
-   return simple_nav::get_default_data();
+   #   Rueckgabe der Default-Werte der Stylesheet-Daten als assoziatives Array
+   #
+   $defdata=array(
+      NAV_TYP        =>2,
+      NAV_INDENT     =>10,
+      NAV_WIDTH      =>150,
+      NAV_LINE_HEIGHT=>floatval(0.8),
+      NAV_FONT_SIZE  =>floatval(0.8),
+      NAV_BOR_LRWIDTH=>0,
+      NAV_BOR_OUWIDTH=>1,
+      NAV_BOR_RAD    =>0,
+      NAV_COL_LINK   =>'rgba(153, 51,  0,1)',
+      NAV_COL_BORD_0 =>'rgba(255,190, 60,1)',
+      NAV_COL_BACK_0 =>'rgba(255,255,255,0)',
+      NAV_COL_BORD_1 =>'rgba(255,190, 60,1)',
+      NAV_COL_BACK_1 =>'rgba(255,190, 60,0.3)',
+      NAV_COL_BORD_2 =>'rgba(255,190, 60,1)',
+      NAV_COL_BACK_2 =>'rgba(204,102, 51,1)',
+      NAV_COL_TEXT_2 =>'rgba(255,255,255,1)');
+   #
+   # --- Trimmen der rgba-Parameter / Dezimalkomma durch Dezimalpunkt ersetzen
+   $keys=array_keys($defdata);
+   for($i=0;$i<count($keys);$i=$i+1):
+      $key=$keys[$i];
+      $val=$defdata[$key];
+      if(substr($val,0,4)=='rgba'):
+        $arr=explode(',',$val);
+        $val='rgba('.trim(substr($arr[0],5)).','.trim($arr[1]).','.
+           trim($arr[2]).','.trim(substr($arr[3],0,strlen($arr[3])-1)).')';
+        $defdata[$key]=$val;
+        else:
+        $defdata[$key]=str_replace(',','.',$val);
+        endif;
+      endfor;
+   return $defdata;
    }
-public static function sort($entries) {
-   return simple_nav::sort($entries);
+public static function get_config_data() {
+   #   Rueckgabe der konfigurierten Daten. Falls knoch keine Konfiguration
+   #   definiert wurde, wird ein leeres Array zurueck gegeben.
+   #   benutzte functions:
+   #      self::get_default_data()
+   #
+   # --- Default-Konfigurationsdaten
+   $defdat=self::get_default_data();
+   $keys=array_keys($defdat);
+   #
+   # --- Auslesen der Konfigurationsdaten
+   $confdat=array();
+   for($i=0;$i<count($keys);$i=$i+1):
+      $key=$keys[$i];
+      $val=rex_config::get(NAVIGATION,$key);
+      if(!empty($val) or $val=='0') $confdat[$key]=$val;
+      endfor;
+   return $confdat;
    }
-public static function print_line($entries,$zus,$increment) {
-   return simple_nav::print_line($entries,$zus,$increment);
+public static function set_config_data($data) {
+   #   Schreiben der Konfigurationsdaten
+   #   $data             Array der zu schreibenden Daten
+   #   benutzte functions:
+   #      self::get_default_data()
+   #
+   # --- Default-Konfigurationsdaten
+   $defdat=self::get_default_data();
+   $keys=array_keys($defdat);
+   #
+   for($i=0;$i<count($keys);$i=$i+1):
+      $key=$keys[$i];
+      $val=$data[$key];
+      if(is_integer($val)) $val=intval($val);
+      if(is_float($val))   $val=floatval($val);
+      rex_config::set(NAVIGATION,$key,$val);
+      endfor;
+   }
+public static function write_css_file($data) {
+   #   Schreiben der Stylesheets fuer die Navigation in beide Assets-Ordner des AddOns
+   #   $data             Array der Daten, aus denen die Stylesheet-
+   #                     Klassenbezeichnungen zusammengestellt werden
+   #
+   # --- Auslesen der gesetzten Konfigurationsdaten
+   $keys=array_keys($data);
+   $width       =$data[$keys[2]];
+   $line_height =$data[$keys[3]];
+   $font_size   =$data[$keys[4]];
+   $bor_lrwidth =$data[$keys[5]];
+   $bor_ouwidth =$data[$keys[6]];
+   $bor_rad     =$data[$keys[7]];
+   $col_link    =$data[$keys[8]];
+   $col_border_0=$data[$keys[9]];
+   $col_backgr_0=$data[$keys[10]];
+   $col_border_1=$data[$keys[11]];
+   $col_backgr_1=$data[$keys[12]];
+   $col_border_2=$data[$keys[13]];
+   $col_backgr_2=$data[$keys[14]];
+   $col_text_2  =$data[$keys[15]];
+   #
+   # --- Klassennamen der div-Container
+   $typ0=DIV_TYP.'0';
+   $typ1=DIV_TYP.'1';
+   $typ2=DIV_TYP.'2';
+   #
+   # --- Styles fuer die Navigation selbst
+   $buffer=
+'/*   s i m p l e _ n a v - N a v i g a t i o n   */
+div.'.DIV_BORDER1.' {
+    border-bottom:solid '.$bor_ouwidth.'px '.$col_border_0.';
+    border-top:   solid '.$bor_ouwidth.'px '.$col_border_0.';     /* auch oberer Rand */
+    border-left:  solid '.$bor_lrwidth.'px '.$col_border_0.';
+    border-right: solid '.$bor_lrwidth.'px '.$col_border_0.';
+    border-radius:'.$bor_rad.'em; }
+div.'.DIV_BORDER.' {
+    border-bottom:solid '.$bor_ouwidth.'px '.$col_border_0.';
+    border-top:   solid 0px '.$col_border_0.';     /* kein oberer Rand */
+    border-left:  solid '.$bor_lrwidth.'px '.$col_border_0.';
+    border-right: solid '.$bor_lrwidth.'px '.$col_border_0.';
+    border-radius:'.$bor_rad.'em; }
+div.'.DIV_FORMAT.' { padding:3px; width:'.$width.'px; line-height:'.$line_height.'em; }
+div.'.$typ0.' { background-color:'.$col_backgr_0.'; }
+div.'.$typ1.' { background-color:'.$col_backgr_1.'; }
+div.'.$typ2.' { background-color:'.$col_backgr_2.'; }
+div.'.$typ0.' div a, div.'.$typ1.' div a { font-size:'.$font_size.'em;
+    color:'.$col_link.'; display:block; overflow:hidden; }
+div.'.$typ2.' div { font-size:'.$font_size.'em; color:'.$col_text_2.'; overflow:hidden; }
+/*   a n g e z e i g t    o d e r    v e r b o r g e n   */
+#'.NAVIGATION.' { display:block; padding:0.25em; }
+@media screen and (max-width:'.SCREEN_MOBILE.'em) { #'.NAVIGATION.' { display:none; } }';   
+
+   #
+   # --- Styles fuer das Hamburger-Icon
+   $buffer=$buffer.'
+/*   H a m b u r g e r - / K r e u z - I c o n   */
+#'.HAMBURGER.' { display:none; }
+#'.KREUZ.' {display:none; }
+@media screen and (max-width:'.SCREEN_MOBILE.'em) {
+    #'.HAMBURGER.' { position:fixed; left:10px; margin-top:-1em; display:block;
+        width:28px; cursor:pointer; }
+    div.bar { margin:4px; height:2px; background-color:'.$col_backgr_2.'; }
+    #'.KREUZ.' { position:fixed; left:10px; margin-top:-1em; display:none;
+        width:28px; cursor:pointer; }
+    div.cross1 { margin:4px; height:2px; background-color:'.$col_backgr_2.';
+        transform:translateY(6px) rotate(45deg); }
+    div.cross2 { margin:4px; height:2px; background-color:transparent; }
+    div.cross3 { margin:4px; height:2px; background-color:'.$col_backgr_2.';
+        transform:translateY(-6px) rotate(-45deg); }
+    }';
+   #
+   # --- Styles fuer die Konfiguration
+   $buffer=$buffer.'
+/*   K o n f i g u r a t i o n   */
+.nav_table { background-color:inherit; }
+.nav_guide { padding-left:1em; line-height:1.5em; white-space:nowrap; }
+.nav_center { padding-left:1em; text-align:center; white-space:nowrap; }
+.nav_left  { float:left; }
+.nav_right { float:right; }
+.nav_input { width:4em; line-height:1.5em; text-align:right;
+    border:solid 1px silver; background-color:transparent; }
+.nav_select { width:3em; height:1.8em; text-align:right;
+    border:solid 1px silver; background-color:transparent; }
+.nav_short { width:60px !important; }
+.nav_conf_link { color:'.$col_link.';   font-size:'.$font_size.'em; }
+.nav_conf_text { color:'.$col_text_2.'; font-size:'.$font_size.'em; }
+/*   B e s c h r e i b u n g   */
+.nav_narr { margin:0; }
+.nav_hand { padding-left:2em; }
+.nav_box  { margin:0.5em 0 0.5em 0; padding:0.5em; width:33em; font-family:monospace; 
+    border:solid 1px silver; }';
+   #
+   # --- Styles fuer das Beispiel
+   $buffer=$buffer.'
+/*   B e i s p i e l   */
+.xmp_pad { padding:0 1em 0 1em; vertical-align:top; }
+.xmp_bgcolor { background-color:rgb(230,230,230); }
+.xmp_nav { color:'.$col_link.'; }';
+   #
+   # --- Schreiben der Stylesheet-Datei in /redaxo/src/addons/simple_nav/assets/
+   $file=rex_path::addon(NAVIGATION).'assets/simple_nav.css';
+   $handle=fopen($file,'w');
+   fwrite($handle,$buffer);
+   fclose($handle);
+   #
+   # --- Schreiben der Stylesheet-Datei in /assets/addons/simple_nav/
+   $file=rex_path::addonAssets(NAVIGATION,NAVIGATION.'.css');
+   $handle=fopen($file,'w');
+   fwrite($handle,$buffer);
+   fclose($handle);
+   }
+public static function write_script_file() {
+   #   Erstellen der Javascript-Funktion fuer das Anzeigen/Verstecken der Navigation
+   #   und Ablegen der zugehoerigen Datei in beiden Assets-Ordner des AddOns.
+   #
+   $buffer='function show_hide(nav,h_icon,x_icon) {
+   /*   Schalter zum Anzeigen/Verbergen des Navigations-Containers id="nav"   */
+   var display=document.getElementById(nav).style.display;
+   if(display==\'\' || display==\'none\') {
+     document.getElementById(nav).style.display=\'block\';
+     document.getElementById(x_icon).style.display=\'block\';
+     document.getElementById(h_icon).style.display=\'none\';
+     } else {
+     document.getElementById(nav).style.display=\'none\';
+     document.getElementById(x_icon).style.display=\'none\';
+     document.getElementById(h_icon).style.display=\'block\';
+     }
+   }';
+   #
+   # --- Schreiben der Javascript-Datei in /redaxo/src/addons/simple_nav/assets/
+   $file=rex_path::addon(NAVIGATION).'assets/'.NAVIGATION.'.js';
+   $handle=fopen($file,'w');
+   fwrite($handle,$buffer);
+   fclose($handle);
+   #
+   # --- Schreiben der Javascript-Datei in /assets/addons/simple_nav/
+   $file=rex_path::addonAssets(NAVIGATION,NAVIGATION.'.js');
+   $handle=fopen($file,'w');
+   fwrite($handle,$buffer);
+   fclose($handle);
    }
 #
-# --------------------------- Konfiguration
+# --------------------------- Konfigurationsmenue
 public static function config() {
    #   Eingabeformular fuer die Konfigurationsdaten fuer das Stylesheet
    #   benutzte functions:
@@ -50,7 +299,28 @@ public static function config() {
    #      self::join_data($daten)
    #      self::set_config_data($data)
    #      self::write_css_file($data)
+   #      self::write_script_file()
    #      self::config_form($msg,$daten)
+   #
+   # --- Menue-Strings
+   $tx='Linktext';
+   $txt=array(
+      array('Navigationstyp (=1/2/3)',                            '&nbsp;'),
+      array('Einrückung pro Navigations-Level',                   'px'),
+      array('Navigationszeilen: Breite',                          'px &nbsp; (*)'),
+      array('Navigationszeilen: Zeilenhöhe',                      'em'),
+      array('Linktexte: Zeichengröße (&le;Zeilenhöhe)',           'em'),
+      array('Rand: Dicke links/rechts (0/1/2 Pixel)',             'px'),
+      array('Rand: Dicke oben/unten (0/1/2 Pixel)',               'px'),
+      array('Rand: Krümmungsradius für abgerundete Ecken',        'em'),
+      array('alle Navigationszeilen: Farbe der Linktexte',        $tx),
+      array('Standardzeile: Randfarbe',                           '&nbsp;'),
+      array('Standardzeile: Hintergrundfarbe',                    $tx),
+      array('Zeile des ältesten Ahnen: Randfarbe',                '&nbsp;'),
+      array('Zeile des ältesten Ahnen: Hintergrundfarbe',         $tx),
+      array('Zeile des aktuellen Artikels: Randfarbe',            '&nbsp;'),
+      array('Zeile des aktuellen Artikels: Hintergrundfarbe',     'Artikelname'),
+      array('Zeile des aktuellen Artikels: Textfarbe (kein Link)','Text'));
    #
    # --- Default-Konfigurationsdaten
    $defdat=self::get_default_data();
@@ -61,7 +331,7 @@ public static function config() {
    $confdat=array();
    for($i=0;$i<count($keys);$i=$i+1):
       $key=$keys[$i];
-      $dat=rex_config::get('simple_nav',$key);
+      $dat=rex_config::get(NAVIGATION,$key);
       if(empty($dat)) $anz=$anz+1;
       if(empty($dat)) $dat=$defdat[$key];
       $confdat[$key]=$dat;
@@ -71,63 +341,43 @@ public static function config() {
    $daten=self::split_data($confdat);
    $longkeys=array_keys($daten);
    #
-   # --- falls noch keine Konfiguration gesetzt ist, Stylesheet-Datei schreiben
-   if($anz>3) self::write_css_file($daten);
-   #
-   # --- Menue-Strings
-   $txt=array(
-      'Navigationstyp (=1/2/3)',
-      'Einrückung pro Navigations-Level',
-      'Navigationszeilen: Breite',
-      'Navigationszeilen: Zeilenhöhe',
-      'Linktexte: Zeichengröße (&le;Zeilenhöhe)',
-      'Rand: Dicke links/rechts (0/1/2 Pixel)',
-      'Rand: Dicke oben/unten (0/1/2 Pixel)',
-      'Rand: Krümmungsradius für abgerundete Ecken',
-      'alle Navigationszeilen: Farbe der Linktexte',
-      'Standardzeile: Randfarbe',
-      'Standardzeile: Hintergrundfarbe',
-      'Zeile des ältesten Ahnen: Randfarbe',
-      'Zeile des ältesten Ahnen: Hintergrundfarbe',
-      'Zeile des aktuellen Artikels: Randfarbe',
-      'Zeile des aktuellen Artikels: Hintergrundfarbe',
-      'Zeile des aktuellen Artikels: Textfarbe (kein Link)');
-   #
    # --- Auslesen der eingegebenen Parameter
    $wa='&nbsp; &nbsp; falscher Wert, &nbsp; zurück gesetzt zu &nbsp; ';
    $warn='';
    for($i=0;$i<count($longkeys);$i=$i+1):
       $key=$longkeys[$i];
       $post='';
-      if(!empty($_POST[$key])):
+      if(!empty($_POST[$key]) or $_POST[$key]=='0'):
         $post=$_POST[$key];
         else:
         $post=$daten[$key];
         endif;
+      #     ggf. Dezimalkomma durch Dezimalpunkt ersetzen
+      if($i<=7) $post=str_replace(',','.',$post);
       #     Eingabedaten gemaess Beschraenkungen korrigieren
       if($i==4 and $post>$daten[$longkeys[3]]):
         $korr=$daten[$key];
-        $warn=$txt[$i].': &nbsp; <code>'.$post.'</code> (>Zeilenhöhe) '.$wa.
+        $warn=$txt[$i][0].': &nbsp; <code>'.$post.'</code> (>Zeilenhöhe) '.$wa.
            ' <code>'.$korr.'</code>';
         $post=$korr;
         endif;
       if($i==7 and $post>0 and ($daten[$longkeys[5]]<=0 or $daten[$longkeys[6]]<=0)):
         $korr=0;
-        $warn=$txt[$i].': &nbsp; <code>'.$post.'</code> (nur bei Randdicke&gt;0) '.$wa.
+        $warn=$txt[$i][0].': &nbsp; <code>'.$post.'</code> (nur bei Randdicke&gt;0) '.$wa.
            ' <code>'.$korr.'</code>';
         $post=$korr;
         endif;
       if($post>255 and (strpos($key,'red')>0 or strpos($key,'green')>0 or strpos($key,'blue')>0)):
         $korr=$daten[$key];
         $k=intval(8+($i-8)/4);
-        $warn=$txt[$k].': &nbsp; <code>'.$post.'</code> (>255) '.$wa.
+        $warn=$txt[$k][0].': &nbsp; <code>'.$post.'</code> (>255) '.$wa.
            ' <code>'.$korr.'</code>';
         $post=$korr;
         endif;
       if($post>1 and strpos($key,'opac')>0):
         $korr=$daten[$key];
         $k=intval(8+($i-8)/4);
-        $warn=$txt[$k].': &nbsp; <code>'.$post.'</code> (>1) '.$wa.
+        $warn=$txt[$k][0].': &nbsp; <code>'.$post.'</code> (>1) '.$wa.
            ' <code>'.$korr.'</code>';
         $post=$korr;
         endif;
@@ -145,70 +395,43 @@ public static function config() {
    if(!empty($_POST['reset'])) $reset=$_POST['reset'];
    if(!empty($save) or !empty($reset)):
      if(!empty($reset)):
-       $data=self::get_default_data();
+       $data=$defdat;
        $daten=self::split_data($data);
        else:
        $data=self::join_data($daten);
        endif;
      #
-     # --- Konfigurationsdaten zurueckspeichern und Stylesheet-Datei neu schreiben
+     # --- Konfigurationsdaten speichern, Stylesheet- und Javascript-Datei schreiben
      self::set_config_data($data);
      self::write_css_file($data);
+     self::write_script_file();
      endif;
    #
    # --- Warnmeldungen und Eingabeformular ausgeben
    echo $msg.self::config_form($txt,$daten);
    }
-public static function get_config_data() {
-   #   Rueckgabe der konfigurierten Daten
-   #   benutzte functions:
-   #      self::get_default_data()
-   #
-   # --- Default-Konfigurationsdaten
-   $defdat=self::get_default_data();
-   $keys=array_keys($defdat);
-   #
-   # --- Auslesen der Konfigurationsdaten
-   $keys=array_keys($defdat);
-   $confdat=array();
-   for($i=0;$i<count($keys);$i=$i+1):
-      $dat=rex_config::get('simple_nav',$keys[$i]);
-      if(!empty($dat) or $dat=='0') $confdat[$keys[$i]]=$dat;
-      endfor;
-   return $confdat;
-   }
-public static function set_config_data($data) {
-   #   Schreiben der Konfigurationsdaten
-   #   $data             Array der zu schreibenden Daten
-   #
-   $keys=array_keys($data);
-   for($i=0;$i<count($keys);$i=$i+1):
-      $val=$data[$keys[$i]];
-      rex_config::set('simple_nav',$keys[$i],$val);
-      endfor;
-   }
 public static function split_data($data) {
    #   Zerlegen eines assoziativen Arays im Format der konfigurierten Daten
    #   (16 Parameter) in ein assoziatives Array, in dem die konfigurierten
-   #   RGBA-Farben in ihre Parameter zerlegt sind (40 Parameter
+   #   RGBA-Farben in ihre Parameter zerlegt sind (40 Parameter)
    #   $data             Eingabe-Array
    #   Rueckgabe-Array in diesem Format:
-   #      ['navtyp']             Integer
-   #      ['indent']             Integer
-   #      ['width']              Integer
-   #      ['line_height']        Dezimalzahl mit/ohne Dezimalpunkt
-   #      ['font_size']          Dezimalzahl mit/ohne Dezimalpunkt
-   #      ['bor_lrwidth']        Integer
-   #      ['bor_ouwidth']        Integer
-   #      ['bor_rad']            Integer
-   #      ['col_link/$par']      Integer (xxx=red/green/blue/opac)
-   #      ['col_border_0/xxx']   Integer (xxx=red/green/blue/opac)
-   #      ['col_backgr_0/xxx']   Integer (xxx=red/green/blue/opac)
-   #      ['col_border_1/xxx']   Integer (xxx=red/green/blue/opac)
-   #      ['col_backgr_1/xxx']   Integer (xxx=red/green/blue/opac)
-   #      ['col_border_2/xxx']   Integer (xxx=red/green/blue/opac)
-   #      ['col_backgr_2/xxx']   Integer (xxx=red/green/blue/opac)
-   #      ['col_text_2/xxx']     Integer (xxx=red/green/blue/opac)
+   #      [NAV_TYP]              Integer
+   #      [NAV_INDENT]           Integer
+   #      [NAV_WIDTH]            Integer
+   #      [NAV_LINE_HEIGHT]      Dezimalzahl mit/ohne Dezimalpunkt
+   #      [NAV_FONT_SIZE]        Dezimalzahl mit/ohne Dezimalpunkt
+   #      [NAV_BOR_LRWIDTH]      Integer
+   #      [NAV_BOR_OUWIDTH]      Integer
+   #      [NAV_BOR_RAD]          Integer
+   #      [NAV_COL_LINK/xxx]     Integer (xxx=red/green/blue/opac)
+   #      [NAV_COL_BORD_0/xxx]   Integer (xxx=red/green/blue/opac)
+   #      [NAV_COL_BACK_0/xxx]   Integer (xxx=red/green/blue/opac)
+   #      [NAV_COL_BORD_1/xxx]   Integer (xxx=red/green/blue/opac)
+   #      [NAV_COL_BACK_1/xxx]   Integer (xxx=red/green/blue/opac)
+   #      [NAV_COL_BORD_2/xxx]   Integer (xxx=red/green/blue/opac)
+   #      [NAV_COL_BACK_2/xxx]   Integer (xxx=red/green/blue/opac)
+   #      [NAV_COL_TEXT_2/xxx]   Integer (xxx=red/green/blue/opac)
    #   benutzte functions:
    #      self::split_color($color)
    #
@@ -280,13 +503,10 @@ public static function join_data($daten) {
    }
 public static function config_form($txt,$daten) {
    #   Rueckgabe des Eingabeformulars fuer die Konfigurationsdaten fuer das Stylesheet.
-   #   $txt              Menue-Strings als nummeriertes Array (Nummerierung ab 0)
+   #   $txt              Menue-Strings als nummeriertes Array in der Form
+   #                     $txt[$i][0]: Erlaeuterungstext links und
+   #                     $txt[$i][1]: Erlaeuterungstext rechts ($i=0, 1, ..., 15)
    #   $daten            assoziatives Array der Daten fuer die Input-Felder (40 Parameter)
-   #
-   # --- Konstanten
-   $tx='Linktext';
-   $erg=array('','px','px &nbsp; (*)','em','em','px','px','em',
-      $tx,'',$tx,'',$tx,'','Artikelname','Text');
    #
    $longkeys=array_keys($daten);
    $navwidth=$daten[$longkeys[2]];
@@ -325,14 +545,14 @@ public static function config_form($txt,$daten) {
         $iw=$i;
         if($iw==1 or $iw==2 or $iw==3 or $iw==4 or $iw==7):
           $string=$string.'
-       <tr><td class="nav_guide">'.$txt[$iw].'</td>
-           <td class="nav_guide"><input class="form-control nav_input" type="text" name="'.$key.'" value="'.$val.'" /></td>
-           <td class="nav_guide" colspan="4">'.$erg[$iw].'</td></tr>';
+       <tr><td class="nav_guide">'.$txt[$iw][0].'</td>
+           <td class="nav_guide"><input class="nav_input" type="text" name="'.$key.'" value="'.$val.'" /></td>
+           <td class="nav_guide" colspan="4">'.$txt[$iw][1].'</td></tr>';
           endif;
         if($iw==0 or $iw==5 or $iw==6):
           $arr=array(0,1,2);
           if($iw==0) $arr=array(1,2,3);
-          $str='<select name="'.$key.'" class="form-control nav_input">';
+          $str='<select name="'.$key.'" class="nav_select">';
           for($k=0;$k<count($arr);$k=$k+1):
              if($arr[$k]==$val):
                $str=$str.'<option selected="selected">'.$arr[$k].'</option>';
@@ -341,9 +561,9 @@ public static function config_form($txt,$daten) {
                endif;
              endfor;
           $string=$string.'
-       <tr><td class="nav_guide">'.$txt[$iw].'</td>
+       <tr><td class="nav_guide">'.$txt[$iw][0].'</td>
            <td class="nav_guide">'.$str.'</select></td>
-           <td class="nav_guide" colspan="4">'.$erg[$iw].'</td></tr>';
+           <td class="nav_guide" colspan="4">'.$txt[$iw][1].'</td></tr>';
           endif;
         else:
         #
@@ -351,61 +571,44 @@ public static function config_form($txt,$daten) {
         if(strpos($key,'/red')>0):
           $iw=$iw+1;
           $string=$string.'
-       <tr><td class="nav_guide">'.$txt[$iw].'</td>';
+       <tr><td class="nav_guide">'.$txt[$iw][0].'</td>';
           endif;
         $string=$string.'
-           <td class="nav_guide"><input class="form-control nav_input" type="text" name="'.$key.'" value="'.$val.'" /></td>';
+           <td class="nav_guide"><input class="nav_input" type="text" name="'.$key.'" value="'.$val.'" /></td>';
         #
         # --- Kontrollfelder
         if(strpos($key,'/opac')>0):
-          $fsize='font-size:'.$daten[$longkeys[4]].'em;';
+          $class1='';
           if($iw==8):                        // Linktext
-            $col='color:'.$rgba[$iw].';';
-            $style1='style="padding:3px;"';
-            $style2='style="'.$fsize.' '.$col.'"';
-            $text=$erg[$iw];
+            $class=DIV_FORMAT;
+            $class1='nav_conf_link';
             endif;
-          if($iw==9 or $iw==11 or $iw==13):  // Randfarben
-              $style1='style="width:60px;"';
-              $style2='style="padding-left:3px; font-size:0.5em; '.
-                      'border-top:   solid '.$daten[$longkeys[6]].'px '.$rgba[$iw].';'.
-                      'border-bottom:solid '.$daten[$longkeys[6]].'px '.$rgba[$iw].';'.
-                      'border-left:  solid '.$daten[$longkeys[5]].'px '.$rgba[$iw].';'.
-                      'border-right: solid '.$daten[$longkeys[5]].'px '.$rgba[$iw].';'.
-                      'border-radius:'.$daten[$longkeys[7]].'em;"';
-              $text='&nbsp;';
-            endif;
+          if($iw==9 or $iw==11 or $iw==13)   // Randfarben
+            $class=DIV_BORDER1.' '.DIV_FORMAT.' nav_short';
           if($iw==10 or $iw==12 or $iw==14): // Hintergrundfarben
-            $col=$rgba[8];
-            if($iw==14) $col=$rgba[$iw+1];
-            $col='color:'.$col.';';
-            if($iw==10) $style1='class="simple_nav1 typ0"';
-            if($iw==12) $style1='class="simple_nav1 typ1"';
-            if($iw==14) $style1='class="simple_nav1 typ2"';
-            $style2='style="'.$fsize.' '.$col.'"';
-            $text=$erg[$iw];
+            $class1='nav_conf_link';
+            if($iw==14) $class1='nav_conf_text';
+            if($iw==10) $class=DIV_BORDER1.' '.DIV_FORMAT.' typ0';
+            if($iw==12) $class=DIV_BORDER1.' '.DIV_FORMAT.' typ1';
+            if($iw==14) $class=DIV_BORDER1.' '.DIV_FORMAT.' typ2';
             endif;
-          if($iw==15):                       // Text des aktuellen Artikels
-            $col='color:'.$rgba[$iw].';';
-            $bgcol='background-color:'.$rgba[14].';';
-            $style1='style="width:60px;"';
-            $style2='style="padding-left:3px; '.$fsize.' '.$col.' '.$bgcol.'"';
-            $text=$erg[$iw];
-            endif;
+          if($iw==15)                        // Text des aktuellen Artikels
+            $class=DIV_BORDER1.' '.DIV_FORMAT.' typ2 nav_short';
           $string=$string.'
            <td class="nav_guide">
-               <div '.$style1.'><div '.$style2.'>'.$text.'</div></div></td></tr>';
+               <div class="'.$class.'"><div class="'.$class1.'">'.$txt[$iw][1].'</div></div></td></tr>';
           endif;
         endif;
       if($i==1) $string=$string.'
        <tr><td colspan="6"><b>Stylesheet-Parameter:</b></td></tr>';
       if($i==7) $string=$string.'
        <tr><td align="right">Farben + Deckungsgrad (RGBA-Werte):</td>
-           <td class="nav_guide" align="center">rot</td>
-           <td class="nav_guide" align="center">grün</td>
-           <td class="nav_guide" align="center">blau</td>
-           <td class="nav_guide" align="center">Deckung</td>
-           <td class="nav_guide" align="center" width="'.$navwidth.'">&lt;--- &nbsp; '.$navwidth.' px &nbsp; (*) &nbsp; ---&gt;</td></tr>';
+           <td class="nav_center">rot</td>
+           <td class="nav_center">grün</td>
+           <td class="nav_center">blau</td>
+           <td class="nav_center">Deckung</td>
+           <td class="nav_center nav_conf_link">
+               <span class="nav_left">&nbsp;&nbsp;&lt;---</span> '.$navwidth.' px &nbsp; (*) <span class="nav_right">---&gt;</span></td></tr>';
       endfor;
    #
    # --- Buttons und Formular-Abschluss
@@ -422,149 +625,41 @@ public static function config_form($txt,$daten) {
    </form>';
    return $string;
    }
-public static function write_css_file($data) {
-   #   Schreiben der Stylesheets fuer die Navigation in beide Assets-Ordner des AddOns
-   #   $data             Array der Daten, aus denen die Stylesheet-
-   #                     Klassenbezeichnungen zusammengestellt werden
-   #   benutzte functions:
-   #      self::define_css($data,$zus)
-   #
-   # --- Stylesheet erzeugen
-   $buffer=self::define_css($data,'');
-   #
-   # --- Schreiben der Stylesheet-Datei in /redaxo/src/addons/simple_nav/assets/
-   $file=rex_path::addon('simple_nav').'assets/simple_nav.css';
-   $handle=fopen($file,'w');
-   fwrite($handle,$buffer);
-   fclose($handle);
-   #
-   # --- Schreiben der Stylesheet-Datei in /assets/addons/simple_nav/
-   $file=rex_path::addonAssets('simple_nav','simple_nav.css');
-   $handle=fopen($file,'w');
-   fwrite($handle,$buffer);
-   fclose($handle);
-   }
-public static function define_css($data,$zus='') {
-   #   Rueckgabe eines Strings mit dem Inhalt der Stylesheets
-   #   fuer die Navigation
-   #   $data             Array der Daten, aus denen die Stylesheet-
-   #                     Klassenbezeichnungen zusammengestellt werden
-   #   $zus              Zusatzstring zu den Klassennamen fuer die
-   #                     div-Container (nur fuer die Beispiele benoetigt)
-   #
-   # --- Auslesen der gesetzten Konfigurationsdaten
-   $keys=array_keys($data);
-   $width       =$data[$keys[2]];
-   $line_height =$data[$keys[3]];
-   $font_size   =$data[$keys[4]];
-   $bor_lrwidth =$data[$keys[5]];
-   $bor_ouwidth =$data[$keys[6]];
-   $bor_rad     =$data[$keys[7]];
-   $col_link    =$data[$keys[8]];
-   $col_border_0=$data[$keys[9]];
-   $col_backgr_0=$data[$keys[10]];
-   $col_border_1=$data[$keys[11]];
-   $col_backgr_1=$data[$keys[12]];
-   $col_border_2=$data[$keys[13]];
-   $col_backgr_2=$data[$keys[14]];
-   $col_text_2  =$data[$keys[15]];
-   #
-   # --- Klassennamen der div-Container
-   $nav=DIV_CLASS.$zus;
-   $nav1=DIV_CLASS1.$zus;
-   $typ0=DIV_TYP.'0'.$zus;
-   $typ1=DIV_TYP.'1'.$zus;
-   $typ2=DIV_TYP.'2'.$zus;
-   #
-   # --- Styles fuer die Navigation selbst
-   $buffer=
-'/*   s i m p l e _ n a v - N a v i g a t i o n   */
-div.'.$nav1.' {
-   padding:3px; width:'.$width.'px; line-height:'.$line_height.'em;
-   border-bottom:solid '.$bor_ouwidth.'px '.$col_border_0.';
-   border-top:   solid '.$bor_ouwidth.'px '.$col_border_0.';     /* auch oberer Rand */
-   border-left:  solid '.$bor_lrwidth.'px '.$col_border_0.';
-   border-right: solid '.$bor_lrwidth.'px '.$col_border_0.';
-   border-radius:'.$bor_rad.'em; }
-div.'.$nav.' {
-   padding:3px; width:'.$width.'px; line-height:'.$line_height.'em;
-   border-bottom:solid '.$bor_ouwidth.'px '.$col_border_0.';
-   border-top:   solid 0px '.$col_border_0.';     /* kein oberer Rand */
-   border-left:  solid '.$bor_lrwidth.'px '.$col_border_0.';
-   border-right: solid '.$bor_lrwidth.'px '.$col_border_0.';
-   border-radius:'.$bor_rad.'em; }
-div.'.$typ0.' { background-color:'.$col_backgr_0.'; }
-div.'.$typ1.' { background-color:'.$col_backgr_1.'; }
-div.'.$typ2.' { background-color:'.$col_backgr_2.'; }
-div.'.$typ0.' div a, div.'.$typ1.' div a {
-   font-size:'.$font_size.'em; color:'.$col_link.'; }
-div.'.$typ2.' div {
-   font-size:'.$font_size.'em; color:'.$col_text_2.'; }';
-   #
-   # --- Styles fuer die Konfiguration
-   $buffer=$buffer.'
-/*   fuer die Konfiguration   */
-.nav_table { background-color:inherit; }
-.nav_guide { padding-left:10px; white-space:nowrap; }
-.nav_input { width:60px; text-align:right; }';
-   #
-   # --- Styles fuer das Beispiel
-   $buffer=$buffer.'
-/*   fuer das Beispiel   */
-.xmp_nowrap { vertical-align:top; white-space:nowrap; }
-.xmp_pad { padding-left:20px; }
-.xmp_bgcolor { background-color:silver; }
-.xmp_border { padding:5px; border:solid 3px silver; }';
-   #
-   return $buffer;
-   }
 #
 # --------------------------- Beispiel-Navigation
 public static function example() {
-   #   Ausgabe des HTML-Codes zweier Beispiel-Navigationen
-   #   gemaess konfigurierten bzw. modifizierten Daten/Stylesheet
-   #   unter Beruecksichtigung des konfigurierten Navigationstyps
+   #   Ausgabe des HTML-Codes einer Beispiel-Navigation gemaess den konfigurierten
+   #   Daten/Stylesheet unter Beruecksichtigung des konfigurierten Navigationstyps.
    #   benutzte functions:
-   #      self::get_default_data()
-   #      self::define_css($data,$zus)
-   #      self::example_data()
-   #      self::sort($entries)
+   #      self::get_config_data()
    #      self::example_entries($navtyp)
-   #      self::print_line($entries,$zus,$increment)
+   #      simple_nav::sort($entries)
+   #      simple_nav::print_line($entries,$increment)
    #
-   # --- 1) konfigurierte Stylesheet-Daten
-   $data=self::get_default_data();
-   $keys=array_keys($data);
-   for($i=0;$i<count($keys);$i=$i+1) $data[$keys[$i]]=rex_config::get('simple_nav',$keys[$i]);
-   $navtyp=$data[$keys[0]];
-   $incr1=rex_config::get('simple_nav',$keys[1]);
-   $stx='style="background-color:'.$data[$keys[10]].'; color:'.$data[$keys[8]].';"';
+   # --- konfigurierte Stylesheet-Daten
+   $data=self::get_config_data();
+   $navtyp=$data[NAV_TYP];
+   $incr=rex_config::get(NAVIGATION,NAV_INDENT);
    #
-   # --- 2) Beispiel-Stylesheet-Daten (Navigationstyp wird uebernommen)
-   $xmpdata=self::example_data();
-   $xmpdata[$keys[0]]=$navtyp;
-   $zus='xmp';
-   $incr2=$xmpdata[$keys[1]];
-   $styles2=self::define_css($xmpdata,$zus);
-   $sty='style="background-color:'.$xmpdata[$keys[10]].'; color:'.$xmpdata[$keys[8]].';"';
-   #
-   # --- Entries (Navigationszeilen)
+   # --- Entries (Navigationszeilen) definieren und sortieren
    $entries=self::example_entries($navtyp);
-   $entries=self::sort($entries);  // sortieren
+   $entries=simple_nav::sort($entries);
    #
-   # --- Darstellung beider Navigationen nebeneinander
+   # --- Darstellung der Beispiel-Navigation
    echo '
-<style>
-'.$styles2.'
-</style>
+<h4>Darstellung gemäß konfigurierten Styles ohne Basisartikel</b><br/>&nbsp;</h4>
 <table class="nav_table">
     <tr valign="top">
-        <td><b>Darstellung ohne Basisartikel:</b>
-            <div><br/>
-            Abhängig vom Navigationstyp (1/2/3)<br/>
+        <td class="xmp_pad">
+            <div class="xmp_nav xmp_bgcolor">
+'.simple_nav::print_line($entries,$incr).'</div>
+        </td>
+        <td class="xmp_pad">&nbsp;&nbsp;&nbsp;</td>
+        <td class="xmp_pad">
+            <div>Abhängig vom Navigationstyp (1/2/3)<br/>
             werden Onkelkategorien bzw. -artikel<br/>
-            aller Generationen angezeigt (+)<br/>
-            oder nicht (-):
+            aller Generationen des aktuellen<br/>
+            Artikels angezeigt (+) oder nicht (-):
             <table class="nav_table">';
    for($n=1;$n<=3;$n=$n+1):
       $type='Typ '.$n;
@@ -575,51 +670,17 @@ public static function example() {
       $class="nav_table";
       if($n==$navtyp) $class="xmp_bgcolor";
       echo '
-                <tr><td class="xmp_pad xmp_nowrap '.$class.'">'.$type.':</td>
-                    <td class="xmp_pad xmp_nowrap '.$class.'">Onkelkategorien</td>
-                    <td class="xmp_pad xmp_nowrap '.$class.'">'.$shka.'</td></tr>
-                <tr><td class="xmp_pad xmp_nowrap '.$class.'"></td>
-                    <td class="xmp_pad xmp_nowrap '.$class.'">Onkelartikel</td>
-                    <td class="xmp_pad xmp_nowrap '.$class.'">'.$shar.'</td></tr>';
+                <tr><td class="xmp_pad '.$class.'">'.$type.':</td>
+                    <td class="xmp_pad '.$class.'">Onkelkategorien</td>
+                    <td class="xmp_pad '.$class.'">'.$shka.'</td></tr>
+                <tr><td class="xmp_pad '.$class.'"></td>
+                    <td class="xmp_pad '.$class.'">Onkelartikel</td>
+                    <td class="xmp_pad '.$class.'">'.$shar.'</td></tr>';
       endfor;
    echo '
-            </table></div></td>
-        <td class="xmp_pad">
-            <div align="center"><b>konfigurierte&nbsp;Styles</b></div><br/>
-            <div class="xmp_border" '.$stx.'>
-'.self::print_line($entries,'',$incr1).'</div>
-        </td>
-        <td class="xmp_pad">
-            <div align="center"><b>feste&nbsp;Beispiel-Styles</b></div></br/>
-            <div class="xmp_border" '.$sty.'>
-'.self::print_line($entries,$zus,$incr2).'</div>
-        </td></tr>
-</table>';
-   }
-public static function example_data() {
-   #   Rueckgabe der Beispiel-Werte der Stylesheet-Daten
-   #   als assoziatives Array
-   #
-   $blau ='rgba(72,120,160,1)';
-   $weiss='rgba(255,255,255,1)';
-   $rot  ='rgba(183,81,0,1)';
-   return array(
-      'navtyp'      =>0,
-      'indent'      =>20,
-      'width'       =>220,
-      'line_height' =>'1.5',
-      'font_size'   =>'1.2',
-      'bor_lrwidth' =>1,
-      'bor_ouwidth' =>1,
-      'bor_rad'     =>'0.5',
-      'col_link'    =>$weiss,
-      'col_border_0'=>$blau,
-      'col_backgr_0'=>$blau,
-      'col_border_1'=>$blau,
-      'col_backgr_1'=>$blau,
-      'col_border_2'=>$blau,
-      'col_backgr_2'=>$rot,
-      'col_text_2'  =>$weiss);
+            </table></div></td></tr>
+    <tr><td colspan="3">&nbsp;</td></tr>
+</table>';   
    }
 public static function example_entries($navtyp) {
    #   Rueckgabe der unsortierten Zeilen einer Beispielnavigation
