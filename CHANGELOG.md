@@ -1,4 +1,20 @@
 # simple_nav
+<h4>Version 1.6</h4>
+<ul>
+    <li>Kategorien/Artikel können in den Navigationszeilen mit je einem
+        Icon kenntlich gemacht werden, deren Farben an die konfigurierten
+        Farben der Navigation angepasst sind.</li>
+    <li>Geschwisterkategorien werden in der Navigation jetzt vor (statt
+        nach) den Geschwisterartikeln eines Artikels angezeigt.</li>
+    <li>Das AddOn schreibt die Stylesheet-Datei nur noch in das
+        Assets-Verzeichnis des AddOns.</li>
+    <li>Die Javascript-Datei steht jetzt im AddOn-assets-Ordner zur
+        Verfügung und wird per Install/Re-Install bereit gestellt.</li>
+    <li>Konstanten werden nicht mehr per 'define(...)' vereinbart,
+        sondern als Klassen-Konstanten definiert.</li>
+    <li>Neuinstallationen liefen bisher auf Fehler, die jetzt behoben
+        sind.</li>
+</ul>
 <h4>Version 1.5</h4>
 <ul>
     <li>Die Navigation ist jetzt auf Smartphone-Displays normalerweise
